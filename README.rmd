@@ -6,4 +6,12 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+
+# View Data Set
+```{r, message = FALSE}
+library(readr)
+# Use your file name (copy path)
+injury_data <- read_csv("C:/Users/Logmo/Downloads/archive (1).zip")
+injury_data
+
+```
