@@ -6,6 +6,7 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+library(tidyverse)
 
 # View Data Set
 ```{r, message = FALSE}
@@ -13,5 +14,43 @@ library(readr)
 # Use your file name (copy path)
 injury_data <- read_csv("C:/Users/Logmo/Downloads/archive (1).zip")
 injury_data
-
 ```
+
+# Data already seems to be cleaned
+# Filter Data to be all years beyond (inclusive) 2010 
+```{r, message=FALSE}
+filtered_injurydata <- injury_data[as.numeric(format(injury_data$Date, "%Y")) >= 2010,]
+summary(filtered_injurydata$Date)
+filtered_injurydata
+```
+
+# Change old team names to their new team name
+```{r, message=FALSE}
+all_teams <- (unique(filtered_injurydata$Team))
+all_teams
+# We see there is 32 teams here, there should only be 30 nba teams. Bullets and Bobcats are old names, let's change those to be correct
+# Hornets <- Bobcats
+# Wizards <- Bullets
+
+filtered_injurydata$Team <- 
+  ifelse(filtered_injurydata$Team == "Bobcats", "Hornets",
+  ifelse(filtered_injurydata$Team == "Bullets", "Wizards",
+         filtered_injurydata$Team))
+# Check if there is now 30 teams
+all_teams <- (unique(filtered_injurydata$Team))
+all_teams
+# Data is ready now
+```
+
+# Let's look at the highest injured teams
+```{r, message=FALSE}
+team_counts <- table(filtered_injurydata$Team)
+sorted_team_counts <- sort(team_counts, decreasing = TRUE)
+highest5_injuredTeams <- head(sorted_team_counts, 5)
+highest5_injuredTeams
+```
+The most frequently injured team are Spurs (1110), Celtics (1028), Raptors (1009), Mavericks (958), Heat (901).
+
+
+
+
