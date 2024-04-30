@@ -1,9 +1,11 @@
+DS 202 Final Project Data Dynamos
+================
+Members: Logan Becker, Gavin Herum, Jackson Weaver
 
-library(tidyverse)
-
-# View Data Set
+## View Data Set
 
 ``` r
+#install.packages("readr")
 library(readr)
 # Use your file name (copy path)
 injury_data <- read_csv("C:/Users/Logmo/Downloads/archive (1).zip")
@@ -25,9 +27,7 @@ injury_data
     ## 10     9 1962-11-14 Zephyrs <NA>         Al Ferrari    placed on disabled list …
     ## # ℹ 37,657 more rows
 
-# Data already seems to be cleaned
-
-# Filter Data to be all years beyond (inclusive) 2010
+## Filter Data to be all years beyond (inclusive) 2010
 
 ``` r
 filtered_injurydata <- injury_data[as.numeric(format(injury_data$Date, "%Y")) >= 2010,]
@@ -37,26 +37,7 @@ summary(filtered_injurydata$Date)
     ##         Min.      1st Qu.       Median         Mean      3rd Qu.         Max. 
     ## "2010-01-01" "2014-03-03" "2017-11-19" "2017-05-24" "2021-02-21" "2023-04-16"
 
-``` r
-filtered_injurydata
-```
-
-    ## # A tibble: 22,998 × 6
-    ##     ...1 Date       Team     Acquired      Relinquished        Notes            
-    ##    <dbl> <date>     <chr>    <chr>         <chr>               <chr>            
-    ##  1 14669 2010-01-01 Knicks   <NA>          Jonathan Bender     placed on IL wit…
-    ##  2 14670 2010-01-01 Knicks   Marcus Landry <NA>                activated from IL
-    ##  3 14671 2010-01-02 Celtics  <NA>          Kevin Garnett       placed on IL wit…
-    ##  4 14672 2010-01-02 Celtics  Glen Davis    <NA>                activated from IL
-    ##  5 14673 2010-01-02 Nets     <NA>          Sean Williams       placed on IL     
-    ##  6 14674 2010-01-02 Nets     Josh Boone    <NA>                activated from IL
-    ##  7 14675 2010-01-02 Wizards  <NA>          Mike James (Lamont) placed on IL     
-    ##  8 14676 2010-01-02 Wizards  JaVale McGee  <NA>                activated from IL
-    ##  9 14677 2010-01-04 Blazers  <NA>          Joel Przybilla      placed on IL rec…
-    ## 10 14678 2010-01-04 Clippers <NA>          Brian Skinner       placed on IL     
-    ## # ℹ 22,988 more rows
-
-# Change old team names to their new team name
+## Change old team names to their new team name
 
 ``` r
 all_teams <- (unique(filtered_injurydata$Team))
@@ -96,7 +77,7 @@ all_teams
 # Data is ready now
 ```
 
-# Let’s look at the highest injured teams
+## Let’s look at the highest injured teams
 
 ``` r
 team_counts <- table(filtered_injurydata$Team)
