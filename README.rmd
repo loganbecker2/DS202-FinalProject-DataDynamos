@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 #install.packages("readr")
 library(readr)
 # Use your file name (copy path)
-injury_data <- read_csv("C:/Users/Logmo/Downloads/archive (1).zip")
+injury_data <- read_csv("./archive.zip")
 injury_data
 ```
 
