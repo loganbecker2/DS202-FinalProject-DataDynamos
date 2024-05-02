@@ -12,16 +12,45 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r, message = FALSE}
 #install.packages("readr")
 library(readr)
-# Use your file name (copy path)
+# Use your file name for read_csv (copy file path)
 injury_data <- read_csv("C:/Users/Logmo/Downloads/archive (1).zip")
-injury_data
+player_data <- read_csv("C:/Users/Logmo/Downloads/archive.zip")
+head(injury_data)
+head(player_data)
+# These datsets are already cleaned we just need to filter it to the data we want
 ```
 
-## Filter Data to be all years beyond (inclusive) 2010 
+## Filter Injury Data to be all years beyond 2010 (Inclusive) 
 ```{r, message=FALSE}
+# Filter injury data to be all years beyond 2010 (Inclusive)
 filtered_injurydata <- injury_data[as.numeric(format(injury_data$Date, "%Y")) >= 2010,]
 summary(filtered_injurydata$Date)
+
+# Filter injury data to only have rows where Relinquished is not NA (someone is injured), delete Acquired row (Unnecessary)
+library(dplyr)
+filtered_injurydata <- filtered_injurydata %>%
+  filter(!is.na(Relinquished))
+filtered_injurydata <- subset(filtered_injurydata, select = -Acquired)
+summary(filtered_injurydata)
+
+
+
+#-------------TESTING-------------
+# Starting 12,119 rows
+# Filter injury data to include only notes that contain "Placed on IR"
+filtered_injurydata <- subset(filtered_injurydata, grepl("placed on IL", Notes))
+filtered_injurydata
+# Ending 12,106 rows
+
+
+# See what notes include that arent placed on IL
+# Do we include DTD injuries??
+filtered_injurydata <- subset(filtered_injurydata, !grepl(("placed on IL|IR|IL"), Notes))
+filtered_injurydata
+#--------------------------------
+
 ```
+## Filter data further to only have rows of injuries (don't include the rows that show acquired player)
 
 ## Change old team names to their new team name
 ```{r, message=FALSE}
@@ -48,7 +77,7 @@ sorted_team_counts <- sort(team_counts, decreasing = TRUE)
 highest5_injuredTeams <- head(sorted_team_counts, 5)
 highest5_injuredTeams
 ```
-The most frequently injured team are Spurs (1110), Celtics (1028), Raptors (1009), Mavericks (958), Heat (901).
+The most frequently injured team are Spurs (582), Celtics (530), Raptors (529), Mavericks (497), Heat (474).
 
 
 
