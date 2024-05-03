@@ -13,61 +13,37 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r, message = FALSE}
 #install.packages("readr")
 library(readr)
-# Use your file name for read_csv (copy file path)
-injury_data <- read_csv("./injury_data.zip")
-
+# read datasets
+injury_data <- read_csv("./injury_data.zip") 
 player_data <- read_csv("./player_data.csv")
+seasonsStats_data <- read_csv("./Seasons_Stats.csv")
 head(injury_data)
 head(player_data)
-# These datsets are already cleaned we just need to filter it to the data we want
+head(seasonsStats_data)
+# These datasets are already cleaned we just need to filter it to the data we want
 ```
 
-## Filter Injury Data to be all years beyond 2010 (Inclusive) 
-=======
-# Use your file name (copy path)
-injury_data <- read_csv("./archive.zip")
-injury_data
-```
-
-## Filter Data to be all years beyond (inclusive) 2010
-
->>>>>>> 560a834c5ef2231fff48ed95a8539967ea698ad9
+## Filter every dataset to be all years beyond (inclusive) 2010
 ```{r, message=FALSE}
-# Filter injury data to be all years beyond 2010 (Inclusive)
+# Filter injury_data
 filtered_injurydata <- injury_data[as.numeric(format(injury_data$Date, "%Y")) >= 2010,]
-summary(filtered_injurydata$Date)
+print('injury_data')
+summary(filtered_injurydata["Date"])
 
-# Filter injury data to only have rows where Relinquished is not NA (someone is injured)
-library(dplyr)
-filtered_injurydata <- filtered_injurydata %>%
-  filter(!is.na(Relinquished))
-# Deletes acquired row
-#filtered_injurydata <- subset(filtered_injurydata, select = -Acquired)
-summary(filtered_injurydata)
+# Filter player_data
+filtered_playerdata <- subset(player_data, year_start >= 2010 | year_end >= 2010)
+print('player_data')
+summary(filtered_playerdata[c("year_start", "year_end")])
 
-
-
-#-------------TESTING-------------
-# Starting 12,119 rows
-# Filter injury data to include only notes that contain "Placed on IR"
-filtered_injurydata <- subset(filtered_injurydata, grepl("placed on IL", Notes))
-filtered_injurydata
-# Ending 12,106 rows
-
-
-# See what notes include that arent placed on IL
-# Do we include DTD injuries??
-filtered_injurydata <- subset(filtered_injurydata, !grepl(("placed on IL|IR|IL"), Notes))
-filtered_injurydata
-#--------------------------------
-
+# Filter seasons_stats
+filtered_seasonsStatsdata <- subset(seasonsStats_data, Year >= 2010)
+print('seasonsStats_data')
+summary(filtered_seasonsStatsdata["Year"])
 ```
-## Filter data further to only have rows of injuries (don't include the rows that show acquired player)
 
 ## Change old team names to their new team name
-
 ```{r, message=FALSE}
-all_teams <- (unique(filtered_injurydata$Team))
+all_teams <- unique(filtered_injurydata$Team)
 all_teams
 # We see there is 32 teams here, there should only be 30 nba teams. Bullets and Bobcats are old names, let's change those to be correct
 # Hornets <- Bobcats
@@ -78,25 +54,25 @@ filtered_injurydata$Team <-
   ifelse(filtered_injurydata$Team == "Bullets", "Wizards",
          filtered_injurydata$Team))
 # Check if there is now 30 teams
-all_teams <- (unique(filtered_injurydata$Team))
+all_teams <- unique(filtered_injurydata$Team)
 all_teams
-# Data is ready now
+
+# Checking teams for seasonsStats
+all_teams2 <- unique(filtered_seasonsStatsdata$Tm)
+#all_teams2
+# 34 teams and when analyzing it further the data seems to be off in some of the teams for the players, so we probably will not use this
 ```
 
 ## Let's look at the highest injured teams
-
 ```{r, message=FALSE}
 team_counts <- table(filtered_injurydata$Team)
 sorted_team_counts <- sort(team_counts, decreasing = TRUE)
 highest5_injuredTeams <- head(sorted_team_counts, 5)
 highest5_injuredTeams
 ```
-<<<<<<< HEAD
 The most frequently injured team are Spurs (582), Celtics (530), Raptors (529), Mavericks (497), Heat (474).
-=======
 
-The most frequently injured team are Spurs (1110), Celtics (1028), Raptors (1009), Mavericks (958), Heat (901).
->>>>>>> 560a834c5ef2231fff48ed95a8539967ea698ad9
+
 
 ## Lets find out the average duration of an injury
 
@@ -157,3 +133,89 @@ ggplot(subset(injury_duration, Date_gap < 365 ), aes(x = Date_gap)) +
 ```
 
 Based off of this data the average duration of an injury will be 13.85 days.
+
+
+
+## Let's look at player age vs injury rates
+```{r, message=FALSE}
+
+# COULD PROBABLY BE OPTIMIZED BUT AM TIRED AND WILL DEAL WITH IT LATER; ALSO PROBABLY NOT THE MOST CLEAR CODE
+# WILL ALSO CREATE SOME GRAPHS AND DIG DEEPER INTO IT
+
+library(dplyr)
+library(lubridate)
+#change injurydata date column to just the year instead of date format to help merge
+changed_injurydata <- filtered_injurydata
+changed_injurydata$Date <- as.Date(changed_injurydata$Date)
+changed_injurydata$Date <- year(changed_injurydata$Date)
+
+# merge datasets and combine player info and injured player
+ageVSinjury <- inner_join(changed_injurydata, filtered_seasonsStatsdata, 
+                         by = c("Relinquished" = "Player", "Date" = "Year"),
+                         relationship = "many-to-many")
+# make sure there are no repeats
+ageVSinjury <- distinct(ageVSinjury,...1.x, .keep_all = TRUE)
+ageVSinjury
+
+# make variable with all the ages for subsets
+ageVSinjury_age <- ageVSinjury["Age"]
+ageVSinjury_age
+seasonStats_age <- filtered_seasonsStatsdata["Age"]
+seasonStats_age
+
+# First look at age range
+age_range <- summary(filtered_seasonsStatsdata$Age)
+age_range
+# Age range is 19-40, lets split into groups by 3-4
+
+# Split age range for injured players
+age1 <- subset(ageVSinjury_age, Age <= 22)
+age2 <- subset(ageVSinjury_age, Age <= 26 & Age > 22)
+age3 <- subset(ageVSinjury_age, Age <= 30 & Age > 26)
+age4 <- subset(ageVSinjury_age, Age <= 35 & Age > 30)
+age5 <- subset(ageVSinjury_age, Age > 35)
+# Split age range for all players
+age11 <- subset(filtered_seasonsStatsdata, Age <= 22)
+age22 <- subset(filtered_seasonsStatsdata, Age <= 26 & Age > 22)
+age33 <- subset(filtered_seasonsStatsdata, Age <= 30 & Age > 26)
+age44 <- subset(filtered_seasonsStatsdata, Age <= 35 & Age > 30)
+age55 <- subset(filtered_seasonsStatsdata, Age > 35)
+
+# Look at ratios of injured players vs all players for each age range
+age1_ratio <- nrow(age1) / nrow(age11)
+age2_ratio <- nrow(age2) / nrow(age22)
+age3_ratio <- nrow(age3) / nrow(age33)
+age4_ratio <- nrow(age4) / nrow(age44)
+age5_ratio <- nrow(age5) / nrow(age55)
+print(paste("19-22 years ratio:", nrow(age1) / nrow(age11)))
+print(paste("23-26 years ratio:", nrow(age2) / nrow(age22)))
+print(paste("27-30 years ratio:", nrow(age3) / nrow(age33)))
+print(paste("31-35 years ratio:", nrow(age4) / nrow(age44)))
+print(paste("36-40 years ratio:", nrow(age5) / nrow(age55)))
+```
+
+
+
+
+
+
+
+
+
+
+
+## may not be needed but here for testing purposes and to safe keep
+```{r, message = FALSE}
+# Filter injury data to only have rows where Relinquished is not NA (someone is injured)
+library(dplyr)
+filtered_injurydata <- filtered_injurydata %>%
+  filter(!is.na(Relinquished))
+# Deletes acquired row
+#filtered_injurydata <- subset(filtered_injurydata, select = -Acquired)
+summary(filtered_injurydata)
+
+
+# Filter injury data to include only notes that contain "IL,IR,DTD" (injuries)
+filtered_injurydata <- subset(filtered_injurydata, grepl("IL|IR|DTD", Notes))
+filtered_injurydata
+```
