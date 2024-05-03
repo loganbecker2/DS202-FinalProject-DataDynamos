@@ -9,28 +9,40 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## View Data Set
+
 ```{r, message = FALSE}
 #install.packages("readr")
 library(readr)
 # Use your file name for read_csv (copy file path)
-injury_data <- read_csv("C:/Users/Logmo/Downloads/archive (1).zip")
-player_data <- read_csv("C:/Users/Logmo/Downloads/archive.zip")
+injury_data <- read_csv("./injury_data.zip")
+
+player_data <- read_csv("./player_data.csv")
 head(injury_data)
 head(player_data)
 # These datsets are already cleaned we just need to filter it to the data we want
 ```
 
 ## Filter Injury Data to be all years beyond 2010 (Inclusive) 
+=======
+# Use your file name (copy path)
+injury_data <- read_csv("./archive.zip")
+injury_data
+```
+
+## Filter Data to be all years beyond (inclusive) 2010
+
+>>>>>>> 560a834c5ef2231fff48ed95a8539967ea698ad9
 ```{r, message=FALSE}
 # Filter injury data to be all years beyond 2010 (Inclusive)
 filtered_injurydata <- injury_data[as.numeric(format(injury_data$Date, "%Y")) >= 2010,]
 summary(filtered_injurydata$Date)
 
-# Filter injury data to only have rows where Relinquished is not NA (someone is injured), delete Acquired row (Unnecessary)
+# Filter injury data to only have rows where Relinquished is not NA (someone is injured)
 library(dplyr)
 filtered_injurydata <- filtered_injurydata %>%
   filter(!is.na(Relinquished))
-filtered_injurydata <- subset(filtered_injurydata, select = -Acquired)
+# Deletes acquired row
+#filtered_injurydata <- subset(filtered_injurydata, select = -Acquired)
 summary(filtered_injurydata)
 
 
@@ -53,6 +65,7 @@ filtered_injurydata
 ## Filter data further to only have rows of injuries (don't include the rows that show acquired player)
 
 ## Change old team names to their new team name
+
 ```{r, message=FALSE}
 all_teams <- (unique(filtered_injurydata$Team))
 all_teams
@@ -71,16 +84,76 @@ all_teams
 ```
 
 ## Let's look at the highest injured teams
+
 ```{r, message=FALSE}
 team_counts <- table(filtered_injurydata$Team)
 sorted_team_counts <- sort(team_counts, decreasing = TRUE)
 highest5_injuredTeams <- head(sorted_team_counts, 5)
 highest5_injuredTeams
 ```
+<<<<<<< HEAD
 The most frequently injured team are Spurs (582), Celtics (530), Raptors (529), Mavericks (497), Heat (474).
+=======
+
+The most frequently injured team are Spurs (1110), Celtics (1028), Raptors (1009), Mavericks (958), Heat (901).
+>>>>>>> 560a834c5ef2231fff48ed95a8539967ea698ad9
+
+## Lets find out the average duration of an injury
+
+```{r, message = FALSE}
+
+library(magrittr)
+library(dplyr)
+library(ggplot2)
+
+# Create subset of the end of an injury
+Acquired_subset <- subset(filtered_injurydata, is.na(filtered_injurydata$Relinquished))
+Acquired_subset <- subset( Acquired_subset, select = -c(1, Relinquished) )
+
+# Create subset of the begining of an injury
+Relinquished_subset <- subset(filtered_injurydata, is.na(filtered_injurydata$Acquired))
+Relinquished_subset <- subset( Relinquished_subset, select = -c(1, Acquired) )
 
 
+# Merge the dataset with itself based on the player's name
+merged_data <- merge(x = Acquired_subset, y = Relinquished_subset, by.x = "Acquired", by.y = "Relinquished", suffixes = c("_end", "_begin"))
 
+merged_data$Date_gap <- as.numeric(difftime(merged_data$Date_end, merged_data$Date_begin, units = "days"))
 
+# Removing all Date_gaps less than 0
+merged_data <- subset(merged_data, Date_gap > 0 )
 
+# Filtering to ensure no duplicate Date_end for a given Date_begin
+injury_duration <- merged_data %>% 
+  group_by(Acquired, Date_end)  %>% 
+  filter(Date_gap == min(Date_gap))
 
+# Reordering collumns of data
+injury_duration <- injury_duration[, c("Acquired", "Date_begin", "Date_end", "Date_gap", "Team_begin", "Team_end", "Notes_begin", "Notes_end")]
+
+# Rename column to Player
+colnames(injury_duration)[colnames(injury_duration) == "Acquired"] <- 'Player'
+
+Injury_duration_average <- mean(injury_duration$Date_gap)
+Injury_duration_average
+
+# This graph is messed up because Patty Mills had an injury that lasted for 2976 days
+ggplot(injury_duration, aes(x = Date_gap)) +
+  geom_bar(fill = "skyblue", color = "black") +
+  labs(title = "Frequency of Different Injury Durations",
+       x = "Duration of injury",
+       y = "Frequency") +
+  theme_minimal()
+
+# This graph is a zoomed in version of only the injuries that lasted less than a year
+ggplot(subset(injury_duration, Date_gap < 365 ), aes(x = Date_gap)) +
+  geom_bar(fill = "skyblue", color = "black") +
+  labs(title = 
+  "Frequency of Different Injury Durations
+  Excluding Injuries that Lasted more than a year (365 days)",
+       x = "Duration of injury",
+       y = "Frequency") +
+  theme_minimal()
+```
+
+Based off of this data the average duration of an injury will be 13.85 days.
