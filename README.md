@@ -157,13 +157,6 @@ all_teams
     ## [21] "Kings"        "Lakers"       "Hawks"        "Rockets"      "Thunder"     
     ## [26] "Warriors"     "Hornets"      "Suns"         "Bulls"        "Pelicans"
 
-``` r
-# Checking teams for seasonsStats
-all_teams2 <- unique(filtered_seasonsStatsdata$Tm)
-#all_teams2
-# 34 teams and when analyzing it further the data seems to be off in some of the teams for the players, so we probably will not use this
-```
-
 ## Lets find out the average duration of an injury
 
 ``` r
@@ -234,7 +227,7 @@ ggplot(subset(injury_duration, Date_gap < 365 ), aes(x = Date_gap)) +
 Based off of this data the average duration of an injury will be 13.85
 days.
 
-## Age vs Injury data setup
+## Injury per Player data setup
 
 ``` r
 library(dplyr)
@@ -253,7 +246,7 @@ ageVSinjury <- inner_join(changed_injurydata, filtered_seasonsStatsdata,
 ageVSinjury <- distinct(ageVSinjury,...1.x, .keep_all = TRUE)
 ```
 
-## Age Vs Injuries
+## Injuries per Player (2010 - 2017)
 
 ``` r
 # First look at age range
@@ -312,7 +305,7 @@ AgeRatios(ageInjury_list, agePlayer_list, TRUE) # PRINTS AGE RATIOS
 listAgeRatios <- AgeRatios(ageInjury_list, agePlayer_list, FALSE) # SAVES AGE RATIOS AS LIST
 ```
 
-## Graph for Age Vs Injury
+## Graph for Injuries per player
 
 ``` r
 library(ggplot2)
@@ -339,6 +332,97 @@ ggplot(dfAgeRatio, aes(x = Age_Group, y = Ratio, fill = Age_Group)) +
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+## Statistics for injury duration by age group
+
+``` r
+library(lubridate)
+# Change date column to just year
+changed_injuryduration <- injury_duration
+changed_injuryduration$Date_begin <- as.Date(changed_injuryduration$Date_begin)
+changed_injuryduration$Date_begin <- year(changed_injuryduration$Date_begin)
+
+# Merge injury_duration and filtered_seasonsStatsdata
+durationANDage <- inner_join(changed_injuryduration, filtered_seasonsStatsdata, 
+                             by = c("Date_begin" = "Year", "Player" = "Player"),
+                             relationship = "many-to-many")
+# Split by age group
+ageInjuryDuration_list <- SplitAges(durationANDage[c("Date_gap", "Age")])
+
+# Statistics for each age group
+mean1 <- mean(ageInjuryDuration_list[[1]]$Date_gap)
+mean2 <- mean(ageInjuryDuration_list[[2]]$Date_gap)
+mean3 <- mean(ageInjuryDuration_list[[3]]$Date_gap)
+mean4 <- mean(ageInjuryDuration_list[[4]]$Date_gap)
+mean5 <-mean(ageInjuryDuration_list[[5]]$Date_gap)
+max1 <- max(ageInjuryDuration_list[[1]]$Date_gap)
+max2 <- max(ageInjuryDuration_list[[2]]$Date_gap)
+max3 <- max(ageInjuryDuration_list[[3]]$Date_gap)
+max4 <- max(ageInjuryDuration_list[[4]]$Date_gap)
+max5 <- max(ageInjuryDuration_list[[5]]$Date_gap)
+median1 <- median(ageInjuryDuration_list[[1]]$Date_gap)
+median2 <- median(ageInjuryDuration_list[[2]]$Date_gap)
+median3 <- median(ageInjuryDuration_list[[3]]$Date_gap)
+median4 <- median(ageInjuryDuration_list[[4]]$Date_gap)
+median5 <- median(ageInjuryDuration_list[[5]]$Date_gap)
+```
+
+## Graph Injury duration by age group
+
+``` r
+#install.packages('cowplot')
+library(cowplot)
+```
+
+    ## Warning: package 'cowplot' was built under R version 4.3.3
+
+``` r
+library(ggplot2)
+# Create a dataset for the statistics for graph building
+ageInjuryDuration_df <- data.frame(
+  Age_Group = c("19-22 years", "23-26 years", "27-30 years", "31-35 years","36-40 years"),
+  Mean = c(mean1,mean2,mean3,mean4,mean5),
+  Max = c(max1,max2,max3,max4,max5),
+  Median = c(median1,median2,median3,median4,median5))
+ageInjuryDuration_df
+```
+
+    ##     Age_Group     Mean Max Median
+    ## 1 19-22 years 15.22723 710      6
+    ## 2 23-26 years 13.21083 805      5
+    ## 3 27-30 years 14.07815 498      5
+    ## 4 31-35 years 14.10820 794      4
+    ## 5 36-40 years 18.46328 869      3
+
+``` r
+# Create barcharts for Mean, Max, Median by age group
+bar_means <- ggplot(ageInjuryDuration_df, aes(x = Age_Group, y = Mean, fill = Age_Group)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Mean Injury Duration by Age Group", x = "Age Group", y = "Mean Injury Duration (Days)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+        plot.title = element_text(size = 10),
+        axis.title = element_text(size = 8))
+bar_maxs <- ggplot(ageInjuryDuration_df, aes(x = Age_Group, y = Max, fill = Age_Group)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Longest Injury Duration by Age Group", x = "Age Group", y = "Longest Injury Duration (Days)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+        plot.title = element_text(size = 10),
+        axis.title = element_text(size = 8))
+bar_medians <- ggplot(ageInjuryDuration_df, aes(x = Age_Group, y = Median, fill = Age_Group)) +
+  geom_bar(stat = "identity") +
+  guides(fill = guide_legend(ovveride.aes = list(size = 8))) +
+  labs(title = "Median Injury Duration by Age Group", x = "Age Group", y = "Median Injury Duration (Days)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+        plot.title = element_text(size = 10),
+        axis.title = element_text(size = 8))
+
+plot_grid(bar_means, bar_medians, bar_maxs, ncol = 2, nrow = 2, align = "v")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 ## may not be needed but here for testing purposes and to safe keep
 
