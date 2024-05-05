@@ -1,6 +1,6 @@
 DS 202 Final Project Data Dynamos
 ================
-Members: Logan Becker, Gavin Herum, Jackson Weaver
+Logan Becker, Gavin Herum, Jackson Weaver
 
 ## View Data Set
 
@@ -59,16 +59,12 @@ head(seasonsStats_data)
     ## #   `2P%` <dbl>, `eFG%` <dbl>, FT <dbl>, FTA <dbl>, `FT%` <dbl>, ORB <dbl>,
     ## #   DRB <dbl>, TRB <dbl>, AST <dbl>, STL <dbl>, BLK <dbl>, TOV <dbl>, …
 
-``` r
-# These datasets are already cleaned we just need to filter it to the data we want
-```
-
 ## Filter every dataset to be all years beyond (inclusive) 2010
 
 ``` r
 # Filter injury_data
 filtered_injurydata <- injury_data[as.numeric(format(injury_data$Date, "%Y")) >= 2010,]
-print('injury_data')
+print(paste('injury_data'))
 ```
 
     ## [1] "injury_data"
@@ -161,29 +157,6 @@ all_teams
     ## [21] "Kings"        "Lakers"       "Hawks"        "Rockets"      "Thunder"     
     ## [26] "Warriors"     "Hornets"      "Suns"         "Bulls"        "Pelicans"
 
-``` r
-# Checking teams for seasonsStats
-all_teams2 <- unique(filtered_seasonsStatsdata$Tm)
-#all_teams2
-# 34 teams and when analyzing it further the data seems to be off in some of the teams for the players, so we probably will not use this
-```
-
-## Let’s look at the highest injured teams
-
-``` r
-team_counts <- table(filtered_injurydata$Team)
-sorted_team_counts <- sort(team_counts, decreasing = TRUE)
-highest5_injuredTeams <- head(sorted_team_counts, 5)
-highest5_injuredTeams
-```
-
-    ## 
-    ##     Spurs   Celtics   Raptors Mavericks      Heat 
-    ##      1110      1028      1009       958       901
-
-The most frequently injured team are Spurs (582), Celtics (530), Raptors
-(529), Mavericks (497), Heat (474).
-
 ## Lets find out the average duration of an injury
 
 ``` r
@@ -235,7 +208,7 @@ ggplot(injury_duration, aes(x = Date_gap)) +
   theme_minimal()
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 ``` r
 # This graph is a zoomed in version of only the injuries that lasted less than a year
@@ -249,17 +222,14 @@ ggplot(subset(injury_duration, Date_gap < 365 ), aes(x = Date_gap)) +
   theme_minimal()
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-4-2.png)<!-- -->
 
 Based off of this data the average duration of an injury will be 13.85
 days.
 
-## Let’s look at player age vs injury rates
+## Injury per Player data setup
 
 ``` r
-# COULD PROBABLY BE OPTIMIZED BUT AM TIRED AND WILL DEAL WITH IT LATER; ALSO PROBABLY NOT THE MOST CLEAR CODE
-# WILL ALSO CREATE SOME GRAPHS AND DIG DEEPER INTO IT
-
 library(dplyr)
 library(lubridate)
 #change injurydata date column to just the year instead of date format to help merge
@@ -271,77 +241,17 @@ changed_injurydata$Date <- year(changed_injurydata$Date)
 ageVSinjury <- inner_join(changed_injurydata, filtered_seasonsStatsdata, 
                          by = c("Relinquished" = "Player", "Date" = "Year"),
                          relationship = "many-to-many")
-# make sure there are no repeats
+
+# make sure there are no repeats (distinct IDs)
 ageVSinjury <- distinct(ageVSinjury,...1.x, .keep_all = TRUE)
-ageVSinjury
 ```
 
-    ## # A tibble: 4,876 × 57
-    ##    ...1.x  Date Team  Acquired Relinquished Notes ...1.y Pos     Age Tm        G
-    ##     <dbl> <dbl> <chr> <chr>    <chr>        <chr>  <dbl> <chr> <dbl> <chr> <dbl>
-    ##  1  14669  2010 Knic… <NA>     Jonathan Be… plac…  19970 SF       29 NYK      25
-    ##  2  14671  2010 Celt… <NA>     Kevin Garne… plac…  20097 PF       33 BOS      69
-    ##  3  14673  2010 Nets  <NA>     Sean Willia… plac…  20490 PF       23 NJN      20
-    ##  4  14677  2010 Blaz… <NA>     Joel Przybi… plac…  20360 C        30 POR      30
-    ##  5  14678  2010 Clip… <NA>     Brian Skinn… plac…  20404 PF       33 LAC      16
-    ##  6  14680  2010 Heat  <NA>     Jermaine O'… plac…  20331 C        31 MIA      70
-    ##  7  14683  2010 76ers <NA>     Royal Ivey   plac…  20193 SG       28 TOT      44
-    ##  8  14685  2010 Knic… <NA>     Eddy Curry   plac…  20040 C        27 NYK       7
-    ##  9  14687  2010 Mave… <NA>     Erick Dampi… plac…  20044 C        34 DAL      55
-    ## 10  14689  2010 Nets  <NA>     Josh Boone   plac…  19982 PF       25 NJN      63
-    ## # ℹ 4,866 more rows
-    ## # ℹ 46 more variables: GS <dbl>, MP <dbl>, PER <dbl>, `TS%` <dbl>,
-    ## #   `3PAr` <dbl>, FTr <dbl>, `ORB%` <dbl>, `DRB%` <dbl>, `TRB%` <dbl>,
-    ## #   `AST%` <dbl>, `STL%` <dbl>, `BLK%` <dbl>, `TOV%` <dbl>, `USG%` <dbl>,
-    ## #   blanl <lgl>, OWS <dbl>, DWS <dbl>, WS <dbl>, `WS/48` <dbl>, blank2 <lgl>,
-    ## #   OBPM <dbl>, DBPM <dbl>, BPM <dbl>, VORP <dbl>, FG <dbl>, FGA <dbl>,
-    ## #   `FG%` <dbl>, `3P` <dbl>, `3PA` <dbl>, `3P%` <dbl>, `2P` <dbl>, …
-
-``` r
-# make variable with all the ages for subsets
-ageVSinjury_age <- ageVSinjury["Age"]
-ageVSinjury_age
-```
-
-    ## # A tibble: 4,876 × 1
-    ##      Age
-    ##    <dbl>
-    ##  1    29
-    ##  2    33
-    ##  3    23
-    ##  4    30
-    ##  5    33
-    ##  6    31
-    ##  7    28
-    ##  8    27
-    ##  9    34
-    ## 10    25
-    ## # ℹ 4,866 more rows
-
-``` r
-seasonStats_age <- filtered_seasonsStatsdata["Age"]
-seasonStats_age
-```
-
-    ## # A tibble: 4,762 × 1
-    ##      Age
-    ##    <dbl>
-    ##  1    24
-    ##  2    21
-    ##  3    24
-    ##  4    23
-    ##  5    31
-    ##  6    34
-    ##  7    28
-    ##  8    33
-    ##  9    33
-    ## 10    33
-    ## # ℹ 4,752 more rows
+## Injuries per Player (2010 - 2017)
 
 ``` r
 # First look at age range
 age_range <- summary(filtered_seasonsStatsdata$Age)
-age_range
+age_range 
 ```
 
     ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
@@ -350,53 +260,160 @@ age_range
 ``` r
 # Age range is 19-40, lets split into groups by 3-4
 
-# Split age range for injured players
-age1 <- subset(ageVSinjury_age, Age <= 22)
-age2 <- subset(ageVSinjury_age, Age <= 26 & Age > 22)
-age3 <- subset(ageVSinjury_age, Age <= 30 & Age > 26)
-age4 <- subset(ageVSinjury_age, Age <= 35 & Age > 30)
-age5 <- subset(ageVSinjury_age, Age > 35)
-# Split age range for all players
-age11 <- subset(filtered_seasonsStatsdata, Age <= 22)
-age22 <- subset(filtered_seasonsStatsdata, Age <= 26 & Age > 22)
-age33 <- subset(filtered_seasonsStatsdata, Age <= 30 & Age > 26)
-age44 <- subset(filtered_seasonsStatsdata, Age <= 35 & Age > 30)
-age55 <- subset(filtered_seasonsStatsdata, Age > 35)
+# With this knowledge we can make a function to split up a dataset into a list with different age groups
+SplitAges <- function(df) {
+  age1 <- subset(df, Age <= 22)
+  age2 <- subset(df, Age <= 26 & Age > 22)
+  age3 <- subset(df, Age <= 30 & Age > 26)
+  age4 <- subset(df, Age <= 35 & Age > 30)
+  age5 <- subset(df, Age > 35)
+  return(list(age1 = age1,age2 = age2,age3 = age3,age4 = age4,age5 = age5)) #Returns list of 5 lists of age groups
+}
+# Split age range by calling function
+ageInjury_list <- SplitAges(ageVSinjury["Age"])
+agePlayer_list <- SplitAges(filtered_seasonsStatsdata["Age"])
 
-# Look at ratios of injured players vs all players for each age range
-age1_ratio <- nrow(age1) / nrow(age11)
-age2_ratio <- nrow(age2) / nrow(age22)
-age3_ratio <- nrow(age3) / nrow(age33)
-age4_ratio <- nrow(age4) / nrow(age44)
-age5_ratio <- nrow(age5) / nrow(age55)
-print(paste("19-22 years ratio:", nrow(age1) / nrow(age11)))
+# Function to print/save age ratios for each group
+AgeRatios <- function(list1,list2,PRINT) {
+  if(PRINT == TRUE) {
+    print(paste("19-22 years ratio:", nrow(list1[[1]]) / nrow(list2[[1]])))
+    print(paste("23-26 years ratio:", nrow(list1[[2]]) / nrow(list2[[2]])))
+    print(paste("27-30 years ratio:", nrow(list1[[3]]) / nrow(list2[[3]])))
+    print(paste("31-35 years ratio:", nrow(list1[[4]]) / nrow(list2[[4]])))
+    print(paste("36-40 years ratio:", nrow(list1[[5]]) / nrow(list2[[5]])))
+  } else {
+    ratio1 <- nrow(list1[[1]]) / nrow(list2[[1]])
+    ratio2 <- nrow(list1[[2]]) / nrow(list2[[2]])
+    ratio3 <- nrow(list1[[3]]) / nrow(list2[[3]])
+    ratio4 <- nrow(list1[[4]]) / nrow(list2[[4]])
+    ratio5 <- nrow(list1[[5]]) / nrow(list2[[5]])
+    return(list("19-22 years" = ratio1,"23-26 years" = ratio2,"27-30 years" = ratio3,"31-35 years" = ratio4,"36-40 years" = ratio5))
+  }
+}
+
+# Print out ratios of injured players vs all players for each age range
+AgeRatios(ageInjury_list, agePlayer_list, TRUE) # PRINTS AGE RATIOS
 ```
 
     ## [1] "19-22 years ratio: 1.3134328358209"
-
-``` r
-print(paste("23-26 years ratio:", nrow(age2) / nrow(age22)))
-```
-
     ## [1] "23-26 years ratio: 0.952431289640592"
-
-``` r
-print(paste("27-30 years ratio:", nrow(age3) / nrow(age33)))
-```
-
     ## [1] "27-30 years ratio: 0.933817594834544"
-
-``` r
-print(paste("31-35 years ratio:", nrow(age4) / nrow(age44)))
-```
-
     ## [1] "31-35 years ratio: 1.05459387483356"
+    ## [1] "36-40 years ratio: 1.0979020979021"
 
 ``` r
-print(paste("36-40 years ratio:", nrow(age5) / nrow(age55)))
+listAgeRatios <- AgeRatios(ageInjury_list, agePlayer_list, FALSE) # SAVES AGE RATIOS AS LIST
 ```
 
-    ## [1] "36-40 years ratio: 1.0979020979021"
+## Graph for Injuries per player
+
+``` r
+library(ggplot2)
+# Convert ratios to data frame
+dfAgeRatio <- data.frame(Age_Group = names(listAgeRatios), Ratio = unlist(listAgeRatios), row.names = NULL)
+dfAgeRatio
+```
+
+    ##     Age_Group     Ratio
+    ## 1 19-22 years 1.3134328
+    ## 2 23-26 years 0.9524313
+    ## 3 27-30 years 0.9338176
+    ## 4 31-35 years 1.0545939
+    ## 5 36-40 years 1.0979021
+
+``` r
+# Create graph to display Age vs Injury data
+ggplot(dfAgeRatio, aes(x = Age_Group, y = Ratio, fill = Age_Group)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Injuries per Player by Age Group in the NBA", x = "Age Group", y = "Injuries per Player") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+![](README_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+## Statistics for injury duration by age group
+
+``` r
+library(lubridate)
+# Change date column to just year
+changed_injuryduration <- injury_duration
+changed_injuryduration$Date_begin <- as.Date(changed_injuryduration$Date_begin)
+changed_injuryduration$Date_begin <- year(changed_injuryduration$Date_begin)
+
+# Merge injury_duration and filtered_seasonsStatsdata
+durationANDage <- inner_join(changed_injuryduration, filtered_seasonsStatsdata, 
+                             by = c("Date_begin" = "Year", "Player" = "Player"),
+                             relationship = "many-to-many")
+# Split by age group
+ageInjuryDuration_list <- SplitAges(durationANDage[c("Date_gap", "Age")])
+
+# Statistics for each age group
+statisticCalculations <- function(df, fun) {
+  fun1 <- fun(df[[1]]$Date_gap)
+  fun2 <- fun(df[[2]]$Date_gap)
+  fun3 <- fun(df[[3]]$Date_gap)
+  fun4 <- fun(df[[4]]$Date_gap)
+  fun5 <- fun(df[[5]]$Date_gap)
+  return(list("19-22 years" = fun1, "23-26 years" = fun2, "27-30 years" = fun3, "31-35 years" = fun4, "36-40" = fun5))
+}
+# Get lists for each age group for means, maxs, medians, sds
+meanDurations <- statisticCalculations(ageInjuryDuration_list, mean)
+maxDurations <- statisticCalculations(ageInjuryDuration_list, max)
+medianDurations <- statisticCalculations(ageInjuryDuration_list, median)
+sdDurations <- statisticCalculations(ageInjuryDuration_list, sd)
+```
+
+## Graph Injury duration by age group
+
+``` r
+#install.packages('cowplot')
+library(cowplot)
+```
+
+    ## Warning: package 'cowplot' was built under R version 4.3.3
+
+``` r
+library(ggplot2)
+# Create datasets for the statistics for graph building
+mean_df <- data.frame(Age_Group = names(meanDurations), Mean = unlist(meanDurations))
+max_df <- data.frame(Age_Group = names(maxDurations), Max = unlist(maxDurations))
+median_df <- data.frame(Age_Group = names(medianDurations), Median = unlist(medianDurations))
+sd_df <- data.frame(Age_Group = names(sdDurations), SD = unlist(sdDurations))
+
+
+statistic_barplot <- function(data, x, y, fill, title, y_label) {
+  plot <- ggplot(data, aes_string(x = x, y = y, fill = fill)) +
+    geom_bar(stat = "identity") +
+    labs(title = title, x = "Age Group", y = y_label) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+          plot.title = element_text(size = 11),
+          axis.title = element_text(size = 8),
+          legend.text=element_text(size=8),
+          legend.title = element_text(size = 10))
+  return(plot)
+}
+# Create barcharts for Mean, Max, Median,  by age group
+bar_means <- statistic_barplot(mean_df, "Age_Group", "Mean", "Age_Group", "Mean Injury Duration by Age Group", "Mean Injury Duration (Days)")
+```
+
+    ## Warning: `aes_string()` was deprecated in ggplot2 3.0.0.
+    ## ℹ Please use tidy evaluation idioms with `aes()`.
+    ## ℹ See also `vignette("ggplot2-in-packages")` for more information.
+    ## This warning is displayed once every 8 hours.
+    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+    ## generated.
+
+``` r
+bar_maxs <- statistic_barplot(max_df, "Age_Group", "Max", "Age_Group", "Longest Injury Duration by Age Group", "Longest Injury Duration (Days)")
+bar_medians <- statistic_barplot(median_df, "Age_Group", "Median", "Age_Group", "Median Injury Duration by Age Group", "Median Injury Duration (Days)")
+bar_sd <- statistic_barplot(sd_df, "Age_Group", "SD", "Age_Group", "Standard Deviation Injury Duration by Age Group", "Standard Deviation Injury Duration (Days)")
+
+plot_grid(bar_means, bar_medians, bar_maxs, bar_sd, ncol = 2, nrow = 2, align = "v")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 ## may not be needed but here for testing purposes and to safe keep
 
@@ -445,3 +462,20 @@ filtered_injurydata
     ##  9 14685 2010-01-05 Knicks    <NA>     Eddy Curry          placed on IL         
     ## 10 14687 2010-01-05 Mavericks <NA>     Erick Dampier       placed on IL with le…
     ## # ℹ 12,104 more rows
+
+## Let’s look at the highest injured teams
+
+``` r
+# MIGHT NOT KEEP THIS CODE WHEN PRESENTING UNLESS WE WANT TO LOOK AT SOMETHING FURTHER WITH IT
+team_counts <- table(filtered_injurydata$Team)
+sorted_team_counts <- sort(team_counts, decreasing = TRUE)
+highest5_injuredTeams <- head(sorted_team_counts, 5)
+highest5_injuredTeams
+```
+
+    ## 
+    ##     Spurs   Celtics   Raptors Mavericks      Heat 
+    ##       582       531       529       497       474
+
+The most frequently injured team are Spurs (582), Celtics (530), Raptors
+(529), Mavericks (497), Heat (474).
