@@ -23,6 +23,7 @@ head(seasonsStats_data)
 ```
 
 ## Filter every dataset to be all years beyond (inclusive) 2010
+
 ```{r, message=FALSE}
 # Filter injury_data
 filtered_injurydata <- injury_data[as.numeric(format(injury_data$Date, "%Y")) >= 2010,]
@@ -41,6 +42,7 @@ summary(filtered_seasonsStatsdata["Year"])
 ```
 
 ## Change old team names to their new team name
+
 ```{r, message=FALSE}
 all_teams <- unique(filtered_injurydata$Team)
 all_teams
@@ -58,6 +60,8 @@ all_teams
 ```
 
 ## Lets find out the average duration of an injury
+
+The average duration of an injury in the NBA is important to know because it helps make informed decisions on recovery and what to expect for a player. While the average duration of an injury cannot inform any specific recovery. It can help us get an understanding of the expected results of an injury. Knowing how long an injury could last informs teams, players, and spectators of a sport.
 
 ```{r, message = FALSE}
 
@@ -96,7 +100,11 @@ colnames(injury_duration)[colnames(injury_duration) == "Acquired"] <- 'Player'
 Injury_duration_average <- mean(injury_duration$Date_gap)
 Injury_duration_average
 
-# This graph is messed up because Patty Mills had an injury that lasted for 2976 days
+filtered_injury_duration <- subset(injury_duration, Date_gap <= 365 )
+Injury_duration_average <- mean(filtered_injury_duration$Date_gap)
+Injury_duration_average
+
+# This graph is messed up because Patty Mills had an injury that lasted for 2976 days, which is not accurate to reality
 ggplot(injury_duration, aes(x = Date_gap)) +
   geom_bar(fill = "skyblue", color = "black") +
   labs(title = "Frequency of Different Injury Durations",
@@ -104,8 +112,8 @@ ggplot(injury_duration, aes(x = Date_gap)) +
        y = "Frequency") +
   theme_minimal()
 
-# This graph is a zoomed in version of only the injuries that lasted less than a year
-ggplot(subset(injury_duration, Date_gap < 365 ), aes(x = Date_gap)) +
+# This graph is a zoomed in version of only the injuries that lasted less than a year, this should filter out the injuries that were not accurate.
+ggplot(filtered_injury_duration, aes(x = Date_gap)) +
   geom_bar(fill = "skyblue", color = "black") +
   labs(title = 
   "Frequency of Different Injury Durations
@@ -117,9 +125,8 @@ ggplot(subset(injury_duration, Date_gap < 365 ), aes(x = Date_gap)) +
 
 Based off of this data the average duration of an injury will be 13.85 days.
 
-
-
 ## Injury per Player data setup
+
 ```{r, message=FALSE}
 library(dplyr)
 library(lubridate)
@@ -136,7 +143,9 @@ ageVSinjury <- inner_join(changed_injurydata, filtered_seasonsStatsdata,
 # make sure there are no repeats (distinct IDs)
 ageVSinjury <- distinct(ageVSinjury,...1.x, .keep_all = TRUE)
 ```
+
 ## Injuries per Player (2010 - 2017)
+
 ```{r, message=FALSE}
 # First look at age range
 age_range <- summary(filtered_seasonsStatsdata$Age)
@@ -178,7 +187,9 @@ AgeRatios <- function(list1,list2,PRINT) {
 AgeRatios(ageInjury_list, agePlayer_list, TRUE) # PRINTS AGE RATIOS
 listAgeRatios <- AgeRatios(ageInjury_list, agePlayer_list, FALSE) # SAVES AGE RATIOS AS LIST
 ```
+
 ## Graph for Injuries per player
+
 ```{r, message=FALSE}
 library(ggplot2)
 # Convert ratios to data frame
@@ -192,8 +203,8 @@ ggplot(dfAgeRatio, aes(x = Age_Group, y = Ratio, fill = Age_Group)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-
 ## Statistics for injury duration by age group
+
 ```{r, message=FALSE}
 library(lubridate)
 # Change date column to just year
@@ -223,7 +234,9 @@ maxDurations <- statisticCalculations(ageInjuryDuration_list, max)
 medianDurations <- statisticCalculations(ageInjuryDuration_list, median)
 sdDurations <- statisticCalculations(ageInjuryDuration_list, sd)
 ```
+
 ## Graph Injury duration by age group
+
 ```{r, message=FALSE}
 #install.packages('cowplot')
 library(cowplot)
@@ -257,14 +270,8 @@ plot_grid(bar_means, bar_medians, bar_maxs, bar_sd, ncol = 2, nrow = 2, align = 
 
 ```
 
-
-
-
-
-
-
-
 ## may not be needed but here for testing purposes and to safe keep
+
 ```{r, message = FALSE}
 # Filter injury data to only have rows where Relinquished is not NA (someone is injured)
 library(dplyr)
@@ -280,8 +287,8 @@ filtered_injurydata <- subset(filtered_injurydata, grepl("IL|IR|DTD", Notes))
 print(filtered_injurydata)
 ```
 
-
 ## Let's look at the highest injured teams
+
 ```{r, message=FALSE}
 # MIGHT NOT KEEP THIS CODE WHEN PRESENTING UNLESS WE WANT TO LOOK AT SOMETHING FURTHER WITH IT
 team_counts <- table(filtered_injurydata$Team)
@@ -289,8 +296,8 @@ sorted_team_counts <- sort(team_counts, decreasing = TRUE)
 highest5_injuredTeams <- head(sorted_team_counts, 5)
 highest5_injuredTeams
 ```
-The most frequently injured team are Spurs (582), Celtics (530), Raptors (529), Mavericks (497), Heat (474).
->>>>>>> 6bfaeee75f4c80ebdbb9a8326c055675cb8c7f13
+
+The most frequently injured team are Spurs (582), Celtics (530), Raptors (529), Mavericks (497), Heat (474). \>\>\>\>\>\>\> 6bfaeee75f4c80ebdbb9a8326c055675cb8c7f13
 
 ```{r}
 
@@ -398,3 +405,4 @@ print(injured_sample / overall_sample_size) * 100
  
 
 ```
+

@@ -159,6 +159,13 @@ all_teams
 
 ## Lets find out the average duration of an injury
 
+The average duration of an injury in the NBA is important to know
+because it helps make informed decisions on recovery and what to expect
+for a player. While the average duration of an injury cannot inform any
+specific recovery. It can help us get an understanding of the expected
+results of an injury. Knowing how long an injury could last informs
+teams, players, and spectators of a sport.
+
 ``` r
 library(magrittr)
 library(dplyr)
@@ -199,7 +206,9 @@ Injury_duration_average
     ## [1] 13.84776
 
 ``` r
-# This graph is messed up because Patty Mills had an injury that lasted for 2976 days
+filtered_injury_duration <- subset(injury_duration, Date_gap <= 365 )
+
+# This graph is messed up because Patty Mills had an injury that lasted for 2976 days, which is not accurate to reality
 ggplot(injury_duration, aes(x = Date_gap)) +
   geom_bar(fill = "skyblue", color = "black") +
   labs(title = "Frequency of Different Injury Durations",
@@ -211,8 +220,8 @@ ggplot(injury_duration, aes(x = Date_gap)) +
 ![](README_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 ``` r
-# This graph is a zoomed in version of only the injuries that lasted less than a year
-ggplot(subset(injury_duration, Date_gap < 365 ), aes(x = Date_gap)) +
+# This graph is a zoomed in version of only the injuries that lasted less than a year, this should filter out the injuries that were not accurate.
+ggplot(filtered_injury_duration, aes(x = Date_gap)) +
   geom_bar(fill = "skyblue", color = "black") +
   labs(title = 
   "Frequency of Different Injury Durations
@@ -445,7 +454,7 @@ summary(filtered_injurydata)
 ``` r
 # Filter injury data to include only notes that contain "IL,IR,DTD" (injuries)
 filtered_injurydata <- subset(filtered_injurydata, grepl("IL|IR|DTD", Notes))
-filtered_injurydata
+print(filtered_injurydata)
 ```
 
     ## # A tibble: 12,114 × 6
@@ -478,4 +487,141 @@ highest5_injuredTeams
     ##       582       531       529       497       474
 
 The most frequently injured team are Spurs (582), Celtics (530), Raptors
-(529), Mavericks (497), Heat (474).
+(529), Mavericks (497), Heat (474). \>\>\>\>\>\>\>
+6bfaeee75f4c80ebdbb9a8326c055675cb8c7f13
+
+``` r
+#combining data from injury_data and player_data, replacing values in Acquired column if NA shows up in Acquired column with Relinquished value in row. Then changing name to equal Acquired.
+
+#We are making a column to merge by in the future
+
+combining_data <- injury_data %>% select(Acquired, Relinquished, Notes) %>% mutate(Acquired = if_else(is.na(Relinquished), Acquired, Relinquished)) %>% mutate(name = Acquired) 
+
+
+#made a new column with name to align with player_data, but no distinction among names, so same name will show up multiple times
+
+#below will merge the two dataframes by name
+
+merged_playerData_combiningData <- merge(player_data,combining_data, by = "name")
+
+#count of injuries per player
+counting_number_injuries <- combining_data %>% count(Acquired) #%>% as.numeric(n) 
+
+ggplot(counting_number_injuries, aes(x = n)) +
+  geom_histogram(binwidth = 1,) +
+  labs(title = "Frequency of Injuries", x = "number of injuries", y = "Frequency")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+``` r
+#counts the number of injuries 
+#counting_number_of_injuries <- counting_number_injuries %>% rename(number_of_injuries = n) %>% count(number_of_injuries) %>% rename(people_injured = number_of_injuries) %>% rename(count_of_injuries = n)
+
+#print(counting_number_of_injuries)
+
+merged_playerData_combiningData <- merge(player_data,combining_data, by = "name")
+
+
+
+
+# shows number of injuries based on position
+injuries_by_position <- merged_playerData_combiningData %>% count(position) %>% rename(number_of_injuries = n)
+
+library(ggplot2)
+
+#creates bar graph of injuries by position
+
+ggplot(injuries_by_position, aes(x = position, y = number_of_injuries)) +
+  geom_bar(stat = "identity") +
+  labs(x = "Position Injuries", y = "Frequency", title = "Frequency of Injuries by Position")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-12-2.png)<!-- -->
+
+``` r
+##IL means they won't take up a bench spot
+##IR means they'll be taking up a bench spot
+
+##would certain positions get put on IL instead of IR because of position played?
+
+library(stringr)
+IL <- "placed on IL"
+IR <- "placed on IR"
+
+#below gives injuries that start with "placed on IL"
+
+IL_position_injuries <- merged_playerData_combiningData %>% filter(str_starts(Notes, IL)) %>% select(position, Notes) %>% count(position) %>% rename(IL_injuries = n)
+
+#below gives something that starts with IR and counts the position of each person
+
+IR_position_injuries <- merged_playerData_combiningData %>% filter(str_starts(Notes, IR)) %>% select(position, Notes) %>% count(position) %>% rename(IR_injuries = n)
+#print(IR_position_injuries)
+
+#above from counting position for people placed on IR shows guard and forward are placed on it the most, could possibly be due to aggressiveness of position needed, however F-G, and Guard forward are the lowest
+
+ggplot(IR_position_injuries, aes(x = position, y = IR_injuries)) +
+  geom_bar(stat = "identity") +
+  labs(x = "Position", y = "Frequency", title = "IR position injuries")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-12-3.png)<!-- -->
+
+``` r
+##how many IL happen per position, but by same position how many IR happens?
+
+##IL means a more serious injury which could then impact that persons life. 
+##Would they put someone on IL if they had a certain position compared to another position?
+
+ggplot(IL_position_injuries, aes(x = position, y = IL_injuries)) +
+  geom_bar(stat = "identity") +
+  labs(x = "Position Injuries", y = "Frequency", title = "IL Position Injuries")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-12-4.png)<!-- -->
+
+``` r
+#merging IR and IL injuries in order to compare in bar graph
+merging_IR_IL <- merge(IL_position_injuries, IR_position_injuries, by = "position")
+#print(merging_IR_IL)
+
+
+#bar graph below shows how much more likely you are to get put on IL when at that position.
+#Doesn't account for type of injury, aggressiveness needed at said position and how they affect the team chemistry
+
+ggplot(merging_IR_IL, aes(x = position, y = IL_injuries / IR_injuries)) +
+  geom_bar(stat = "identity") +
+  labs(x = "Position", y = "IL Injuries per IR Injuries", title = "IL to IR Injury constant Based on Position")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-12-5.png)<!-- -->
+
+``` r
+library(tidyr)
+```
+
+    ## 
+    ## Attaching package: 'tidyr'
+
+    ## The following object is masked from 'package:magrittr':
+    ## 
+    ##     extract
+
+``` r
+#below gets the number of players injured
+injured_sample <- merged_playerData_combiningData %>% distinct(name) %>% nrow()
+
+#below gets the total number of players
+overall_sample_size <- player_data %>% distinct(name) %>% nrow()
+
+#below gets the injury at least once per total players
+print(injured_sample / overall_sample_size) * 100
+```
+
+    ## [1] 0.4653333
+
+    ## [1] 46.53333
+
+``` r
+#above shows we got a 46.5% chance a player will get injured at least once, while NLH says the amount injured at least once is a 46.8% chance
+```
