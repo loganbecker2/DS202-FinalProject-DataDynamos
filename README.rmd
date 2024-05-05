@@ -23,6 +23,7 @@ head(seasonsStats_data)
 ```
 
 ## Filter every dataset to be all years beyond (inclusive) 2010
+
 ```{r, message=FALSE}
 # Filter injury_data
 filtered_injurydata <- injury_data[as.numeric(format(injury_data$Date, "%Y")) >= 2010,]
@@ -41,6 +42,7 @@ summary(filtered_seasonsStatsdata["Year"])
 ```
 
 ## Change old team names to their new team name
+
 ```{r, message=FALSE}
 all_teams <- unique(filtered_injurydata$Team)
 all_teams
@@ -58,6 +60,8 @@ all_teams
 ```
 
 ## Lets find out the average duration of an injury
+
+The average duration of an injury in the NBA is important to know because it helps make informed decisions on recovery and what to expect for a player. While the average duration of an injury cannot inform any specific recovery. It can help us get an understanding of the expected results of an injury. Knowing how long an injury could last informs teams, players, and spectators of a sport.
 
 ```{r, message = FALSE}
 
@@ -96,7 +100,11 @@ colnames(injury_duration)[colnames(injury_duration) == "Acquired"] <- 'Player'
 Injury_duration_average <- mean(injury_duration$Date_gap)
 Injury_duration_average
 
-# This graph is messed up because Patty Mills had an injury that lasted for 2976 days
+filtered_injury_duration <- subset(injury_duration, Date_gap <= 365 )
+Injury_duration_average <- mean(filtered_injury_duration$Date_gap)
+Injury_duration_average
+
+# This graph is messed up because Patty Mills had an injury that lasted for 2976 days, which is not accurate to reality
 ggplot(injury_duration, aes(x = Date_gap)) +
   geom_bar(fill = "skyblue", color = "black") +
   labs(title = "Frequency of Different Injury Durations",
@@ -104,8 +112,8 @@ ggplot(injury_duration, aes(x = Date_gap)) +
        y = "Frequency") +
   theme_minimal()
 
-# This graph is a zoomed in version of only the injuries that lasted less than a year
-ggplot(subset(injury_duration, Date_gap < 365 ), aes(x = Date_gap)) +
+# This graph is a zoomed in version of only the injuries that lasted less than a year, this should filter out the injuries that were not accurate.
+ggplot(filtered_injury_duration, aes(x = Date_gap)) +
   geom_bar(fill = "skyblue", color = "black") +
   labs(title = 
   "Frequency of Different Injury Durations
@@ -115,11 +123,10 @@ ggplot(subset(injury_duration, Date_gap < 365 ), aes(x = Date_gap)) +
   theme_minimal()
 ```
 
-Based off of this data the average duration of an injury will be 13.85 days.
-
-
+Based off of this data the average duration of an injury will be 12.24041 days when you exclude the extereme injuries that lasted more than a year. We can see that the data is massively skewed towards shorter injuries. The reason for this being that many of the data points aren't injuries at all and instead are illness. Some instants of players being placed on IL don't have any detail of why. This makes it hard for us to filter out only injuries.
 
 ## Injury per Player data setup
+
 ```{r, message=FALSE}
 library(dplyr)
 library(lubridate)
@@ -136,7 +143,9 @@ ageVSinjury <- inner_join(changed_injurydata, filtered_seasonsStatsdata,
 # make sure there are no repeats (distinct IDs)
 ageVSinjury <- distinct(ageVSinjury,...1.x, .keep_all = TRUE)
 ```
+
 ## Injuries per Player (2010 - 2017)
+
 ```{r, message=FALSE}
 # First look at age range
 age_range <- summary(filtered_seasonsStatsdata$Age)
@@ -178,7 +187,9 @@ AgeRatios <- function(list1,list2,PRINT) {
 AgeRatios(ageInjury_list, agePlayer_list, TRUE) # PRINTS AGE RATIOS
 listAgeRatios <- AgeRatios(ageInjury_list, agePlayer_list, FALSE) # SAVES AGE RATIOS AS LIST
 ```
+
 ## Graph for Injuries per player
+
 ```{r, message=FALSE}
 library(ggplot2)
 # Convert ratios to data frame
@@ -191,9 +202,11 @@ ggplot(dfAgeRatio, aes(x = Age_Group, y = Ratio, fill = Age_Group)) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+
 This graph was created to visualize the difference in injuries per age group. The injuries per player above 1 mean there is more occurrences of players getting injured then there is players in the league. So this means there are players getting injured multiple times or having reoccurring injuries. We also can see from the graph that the most injuries are occurring when players are young and/or just entering the NBA. We also see older players getting injured highly as expected.
 
 ## Statistics for injury duration by age group
+
 ```{r, message=FALSE}
 library(lubridate)
 # Change date column to just year
@@ -223,7 +236,9 @@ maxDurations <- statisticCalculations(ageInjuryDuration_list, max)
 medianDurations <- statisticCalculations(ageInjuryDuration_list, median)
 sdDurations <- statisticCalculations(ageInjuryDuration_list, sd)
 ```
+
 ## Graph Injury duration by age group
+
 ```{r, message=FALSE}
 #install.packages('cowplot')
 library(cowplot)
@@ -298,3 +313,111 @@ In 2021 there could be many causes for the injury outbreak. Some could be the ab
 
 We see a good increase of injuries in 2017. This could be caused by the increased pace of the game. In the 2017-2018 there were many timeout changes made to the rulebook. The main focus of these changes were increasing the pace of the game. Instead of some 90 second timeouts and some 60 second timeouts, all timeouts will be 75 seconds flat. Through this and other changes to mandatory timeouts and stricter delay of game policies if you go over the time, players saw shorter breaks and more time in the game without a break, especially in the last few minutes of a game which sometimes can be the most intense on your body. 
 
+
+```{r}
+
+#combining data from injury_data and player_data, replacing values in Acquired column if NA shows up in Acquired column with Relinquished value in row. Then changing name to equal Acquired.
+
+#We are making a column to merge by in the future
+
+combining_data <- injury_data %>% select(Acquired, Relinquished, Notes) %>% mutate(Acquired = if_else(is.na(Relinquished), Acquired, Relinquished)) %>% mutate(name = Acquired) 
+
+
+#made a new column with name to align with player_data, but no distinction among names, so same name will show up multiple times
+
+#below will merge the two dataframes by name
+
+merged_playerData_combiningData <- merge(player_data,combining_data, by = "name")
+
+#count of injuries per player
+counting_number_injuries <- combining_data %>% count(Acquired) #%>% as.numeric(n) 
+
+ggplot(counting_number_injuries, aes(x = n)) +
+  geom_histogram(binwidth = 1,) +
+  labs(title = "Frequency of Injuries", x = "number of injuries", y = "Frequency")
+
+#counts the number of injuries 
+#counting_number_of_injuries <- counting_number_injuries %>% rename(number_of_injuries = n) %>% count(number_of_injuries) %>% rename(people_injured = number_of_injuries) %>% rename(count_of_injuries = n)
+
+#print(counting_number_of_injuries)
+
+merged_playerData_combiningData <- merge(player_data,combining_data, by = "name")
+
+
+
+
+# shows number of injuries based on position
+injuries_by_position <- merged_playerData_combiningData %>% count(position) %>% rename(number_of_injuries = n)
+
+library(ggplot2)
+
+#creates bar graph of injuries by position
+
+ggplot(injuries_by_position, aes(x = position, y = number_of_injuries)) +
+  geom_bar(stat = "identity") +
+  labs(x = "Position Injuries", y = "Frequency", title = "Frequency of Injuries by Position")
+
+##IL means they won't take up a bench spot
+##IR means they'll be taking up a bench spot
+
+##would certain positions get put on IL instead of IR because of position played?
+
+library(stringr)
+IL <- "placed on IL"
+IR <- "placed on IR"
+
+#below gives injuries that start with "placed on IL"
+
+IL_position_injuries <- merged_playerData_combiningData %>% filter(str_starts(Notes, IL)) %>% select(position, Notes) %>% count(position) %>% rename(IL_injuries = n)
+
+#below gives something that starts with IR and counts the position of each person
+
+IR_position_injuries <- merged_playerData_combiningData %>% filter(str_starts(Notes, IR)) %>% select(position, Notes) %>% count(position) %>% rename(IR_injuries = n)
+#print(IR_position_injuries)
+
+#above from counting position for people placed on IR shows guard and forward are placed on it the most, could possibly be due to aggressiveness of position needed, however F-G, and Guard forward are the lowest
+
+ggplot(IR_position_injuries, aes(x = position, y = IR_injuries)) +
+  geom_bar(stat = "identity") +
+  labs(x = "Position", y = "Frequency", title = "IR position injuries")
+
+##how many IL happen per position, but by same position how many IR happens?
+
+##IL means a more serious injury which could then impact that persons life. 
+##Would they put someone on IL if they had a certain position compared to another position?
+
+ggplot(IL_position_injuries, aes(x = position, y = IL_injuries)) +
+  geom_bar(stat = "identity") +
+  labs(x = "Position Injuries", y = "Frequency", title = "IL Position Injuries")
+
+
+#merging IR and IL injuries in order to compare in bar graph
+merging_IR_IL <- merge(IL_position_injuries, IR_position_injuries, by = "position")
+#print(merging_IR_IL)
+
+
+#bar graph below shows how much more likely you are to get put on IL when at that position.
+#Doesn't account for type of injury, aggressiveness needed at said position and how they affect the team chemistry
+
+ggplot(merging_IR_IL, aes(x = position, y = IL_injuries / IR_injuries)) +
+  geom_bar(stat = "identity") +
+  labs(x = "Position", y = "IL Injuries per IR Injuries", title = "IL to IR Injury constant Based on Position")
+
+
+library(tidyr)
+
+
+#below gets the number of players injured
+injured_sample <- merged_playerData_combiningData %>% distinct(name) %>% nrow()
+
+#below gets the total number of players
+overall_sample_size <- player_data %>% distinct(name) %>% nrow()
+
+#below gets the injury at least once per total players
+print(injured_sample / overall_sample_size) * 100
+
+#above shows we got a 46.5% chance a player will get injured at least once, while NLH says the amount injured at least once is a 46.8% chance
+ 
+
+```
+>>>>>>> 73d7f1be8e9609534572a47427a73588fb6e63ad
