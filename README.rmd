@@ -123,7 +123,7 @@ ggplot(filtered_injury_duration, aes(x = Date_gap)) +
   theme_minimal()
 ```
 
-Based off of this data the average duration of an injury will be 13.85 days.
+Based off of this data the average duration of an injury will be 12.24041 days when you exclude the extereme injuries that lasted more than a year. We can see that the data is massively skewed towards shorter injuries. The reason for this being that many of the data points aren't injuries at all and instead are illness. Some instants of players being placed on IL don't have any detail of why. This makes it hard for us to filter out only injuries.
 
 ## Injury per Player data setup
 
@@ -405,4 +405,3 @@ print(injured_sample / overall_sample_size) * 100
  
 
 ```
-
