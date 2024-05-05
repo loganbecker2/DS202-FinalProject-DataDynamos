@@ -327,8 +327,7 @@ ggplot(dfAgeRatio, aes(x = Age_Group, y = Ratio, fill = Age_Group)) +
   geom_bar(stat = "identity") +
   labs(title = "Injuries per Player by Age Group in the NBA", x = "Age Group", y = "Injuries per Player") +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  scale_fill_manual(values = rainbow(length(unique(dfAgeRatio$Age_Group))))
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
@@ -350,21 +349,19 @@ durationANDage <- inner_join(changed_injuryduration, filtered_seasonsStatsdata,
 ageInjuryDuration_list <- SplitAges(durationANDage[c("Date_gap", "Age")])
 
 # Statistics for each age group
-mean1 <- mean(ageInjuryDuration_list[[1]]$Date_gap)
-mean2 <- mean(ageInjuryDuration_list[[2]]$Date_gap)
-mean3 <- mean(ageInjuryDuration_list[[3]]$Date_gap)
-mean4 <- mean(ageInjuryDuration_list[[4]]$Date_gap)
-mean5 <-mean(ageInjuryDuration_list[[5]]$Date_gap)
-max1 <- max(ageInjuryDuration_list[[1]]$Date_gap)
-max2 <- max(ageInjuryDuration_list[[2]]$Date_gap)
-max3 <- max(ageInjuryDuration_list[[3]]$Date_gap)
-max4 <- max(ageInjuryDuration_list[[4]]$Date_gap)
-max5 <- max(ageInjuryDuration_list[[5]]$Date_gap)
-median1 <- median(ageInjuryDuration_list[[1]]$Date_gap)
-median2 <- median(ageInjuryDuration_list[[2]]$Date_gap)
-median3 <- median(ageInjuryDuration_list[[3]]$Date_gap)
-median4 <- median(ageInjuryDuration_list[[4]]$Date_gap)
-median5 <- median(ageInjuryDuration_list[[5]]$Date_gap)
+statisticCalculations <- function(df, fun) {
+  fun1 <- fun(df[[1]]$Date_gap)
+  fun2 <- fun(df[[2]]$Date_gap)
+  fun3 <- fun(df[[3]]$Date_gap)
+  fun4 <- fun(df[[4]]$Date_gap)
+  fun5 <- fun(df[[5]]$Date_gap)
+  return(list("19-22 years" = fun1, "23-26 years" = fun2, "27-30 years" = fun3, "31-35 years" = fun4, "36-40" = fun5))
+}
+# Get lists for each age group for means, maxs, medians, sds
+meanDurations <- statisticCalculations(ageInjuryDuration_list, mean)
+maxDurations <- statisticCalculations(ageInjuryDuration_list, max)
+medianDurations <- statisticCalculations(ageInjuryDuration_list, median)
+sdDurations <- statisticCalculations(ageInjuryDuration_list, sd)
 ```
 
 ## Graph Injury duration by age group
@@ -378,48 +375,42 @@ library(cowplot)
 
 ``` r
 library(ggplot2)
-# Create a dataset for the statistics for graph building
-ageInjuryDuration_df <- data.frame(
-  Age_Group = c("19-22 years", "23-26 years", "27-30 years", "31-35 years","36-40 years"),
-  Mean = c(mean1,mean2,mean3,mean4,mean5),
-  Max = c(max1,max2,max3,max4,max5),
-  Median = c(median1,median2,median3,median4,median5))
-ageInjuryDuration_df
+# Create datasets for the statistics for graph building
+mean_df <- data.frame(Age_Group = names(meanDurations), Mean = unlist(meanDurations))
+max_df <- data.frame(Age_Group = names(maxDurations), Max = unlist(maxDurations))
+median_df <- data.frame(Age_Group = names(medianDurations), Median = unlist(medianDurations))
+sd_df <- data.frame(Age_Group = names(sdDurations), SD = unlist(sdDurations))
+
+
+statistic_barplot <- function(data, x, y, fill, title, y_label) {
+  plot <- ggplot(data, aes_string(x = x, y = y, fill = fill)) +
+    geom_bar(stat = "identity") +
+    labs(title = title, x = "Age Group", y = y_label) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+          plot.title = element_text(size = 11),
+          axis.title = element_text(size = 8),
+          legend.text=element_text(size=8),
+          legend.title = element_text(size = 10))
+  return(plot)
+}
+# Create barcharts for Mean, Max, Median,  by age group
+bar_means <- statistic_barplot(mean_df, "Age_Group", "Mean", "Age_Group", "Mean Injury Duration by Age Group", "Mean Injury Duration (Days)")
 ```
 
-    ##     Age_Group     Mean Max Median
-    ## 1 19-22 years 15.22723 710      6
-    ## 2 23-26 years 13.21083 805      5
-    ## 3 27-30 years 14.07815 498      5
-    ## 4 31-35 years 14.10820 794      4
-    ## 5 36-40 years 18.46328 869      3
+    ## Warning: `aes_string()` was deprecated in ggplot2 3.0.0.
+    ## ℹ Please use tidy evaluation idioms with `aes()`.
+    ## ℹ See also `vignette("ggplot2-in-packages")` for more information.
+    ## This warning is displayed once every 8 hours.
+    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+    ## generated.
 
 ``` r
-# Create barcharts for Mean, Max, Median by age group
-bar_means <- ggplot(ageInjuryDuration_df, aes(x = Age_Group, y = Mean, fill = Age_Group)) +
-  geom_bar(stat = "identity") +
-  labs(title = "Mean Injury Duration by Age Group", x = "Age Group", y = "Mean Injury Duration (Days)") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
-        plot.title = element_text(size = 10),
-        axis.title = element_text(size = 8))
-bar_maxs <- ggplot(ageInjuryDuration_df, aes(x = Age_Group, y = Max, fill = Age_Group)) +
-  geom_bar(stat = "identity") +
-  labs(title = "Longest Injury Duration by Age Group", x = "Age Group", y = "Longest Injury Duration (Days)") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
-        plot.title = element_text(size = 10),
-        axis.title = element_text(size = 8))
-bar_medians <- ggplot(ageInjuryDuration_df, aes(x = Age_Group, y = Median, fill = Age_Group)) +
-  geom_bar(stat = "identity") +
-  guides(fill = guide_legend(ovveride.aes = list(size = 8))) +
-  labs(title = "Median Injury Duration by Age Group", x = "Age Group", y = "Median Injury Duration (Days)") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
-        plot.title = element_text(size = 10),
-        axis.title = element_text(size = 8))
+bar_maxs <- statistic_barplot(max_df, "Age_Group", "Max", "Age_Group", "Longest Injury Duration by Age Group", "Longest Injury Duration (Days)")
+bar_medians <- statistic_barplot(median_df, "Age_Group", "Median", "Age_Group", "Median Injury Duration by Age Group", "Median Injury Duration (Days)")
+bar_sd <- statistic_barplot(sd_df, "Age_Group", "SD", "Age_Group", "Standard Deviation Injury Duration by Age Group", "Standard Deviation Injury Duration (Days)")
 
-plot_grid(bar_means, bar_medians, bar_maxs, ncol = 2, nrow = 2, align = "v")
+plot_grid(bar_means, bar_medians, bar_maxs, bar_sd, ncol = 2, nrow = 2, align = "v")
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
