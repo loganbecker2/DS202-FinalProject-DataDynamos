@@ -191,7 +191,7 @@ ggplot(dfAgeRatio, aes(x = Age_Group, y = Ratio, fill = Age_Group)) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
-
+This graph was created to visualize the difference in injuries per age group. The injuries per player above 1 mean there is more occurrences of players getting injured then there is players in the league. So this means there are players getting injured multiple times or having reoccurring injuries. We also can see from the graph that the most injuries are occurring when players are young and/or just entering the NBA. We also see older players getting injured highly as expected.
 
 ## Statistics for injury duration by age group
 ```{r, message=FALSE}
@@ -256,6 +256,40 @@ bar_sd <- statistic_barplot(sd_df, "Age_Group", "SD", "Age_Group", "Standard Dev
 plot_grid(bar_means, bar_medians, bar_maxs, bar_sd, ncol = 2, nrow = 2, align = "v")
 
 ```
+We created these graphs to visualize some statistics of the players' injury duration by age group to see if we can find any trends. Looking at the 36-40 year age group we see it has the highest mean, lowest median, longest injury duration, and highest standard deviation. From this we can conclude the data is very spread out, more specifically skewed right. This means while on average there may be older players recovering quickly from injuries, there is also a significant proportion of players who experience longer recovery times. This trend is shown for all age groups (mean > median) which tells us in all age groups there are some injuries that are extremely long to recover from. This trend is mostly profound in the 36-40 year old age group.
+
+
+## Look at injuries over time 2010 - 2022 (2023 data does not include the fall portion)
+```{r,message=FALSE}
+library(ggplot2)
+#change injurydata date column to just the year instead of date format to help merge
+changed_injurydata <- filtered_injurydata
+changed_injurydata$Date <- as.Date(changed_injurydata$Date)
+changed_injurydata$Date <- year(changed_injurydata$Date)
+
+# Prepare data (create dataset with each year and amount of injuries)
+injuryOverTime <- data.frame(
+  Year = unique(changed_injurydata$Date),
+  Injuries = sapply(unique(changed_injurydata$Date), function(year) {
+    sum(changed_injurydata$Date == year)
+  })
+)
+
+# Convert Year column to factor with ordered levels
+injuryOverTime$Year <- factor(injuryOverTime$Year, levels = unique(injuryOverTime$Year))
+
+# Create a line plot using ggplot2
+ggplot(injuryOverTime, aes(x = Year, y = Injuries, group = 1)) +
+  geom_point() +
+  geom_line() +  # Add points for each data point
+  labs(x = "Year", y = "# of Injuries", title = "Injury Count Over Years") +
+  theme_minimal() +
+  scale_x_discrete(labels = as.character(injuryOverTime$Year))
+
+```
+We created a line and dot plot to see any trends between injuries and years. This helps us visualize if injury prevention has gotten better, worse, or stayed the same. T
+
+
 
 
 
