@@ -272,10 +272,10 @@ plot_grid(bar_means, bar_medians, bar_maxs, bar_sd, ncol = 2, nrow = 2, align = 
 
 ```
 
-We created these graphs to visualize some statistics of the players' injury duration by age group to see if we can find any trends. Looking at the 36-40 year age group we see it has the highest mean, lowest median, longest injury duration, and highest standard deviation. From this we can conclude the data is very spread out, more specifically skewed right. This means while on average there may be older players recovering quickly from injuries, there is also a significant proportion of players who experience longer recovery times. This trend is shown for all age groups (mean > median) which tells us in all age groups there are some injuries that are extremely long to recover from. This trend is mostly profound in the 36-40 year old age group.
-
+We created these graphs to visualize some statistics of the players' injury duration by age group to see if we can find any trends. Looking at the 36-40 year age group we see it has the highest mean, lowest median, longest injury duration, and highest standard deviation. From this we can conclude the data is very spread out, more specifically skewed right. This means while on average there may be older players recovering quickly from injuries, there is also a significant proportion of players who experience longer recovery times. This trend is shown for all age groups (mean \> median) which tells us in all age groups there are some injuries that are extremely long to recover from. This trend is mostly profound in the 36-40 year old age group.
 
 ## Look at injuries over time 2010 - 2022
+
 ```{r,message=FALSE}
 library(ggplot2)
 #change injurydata date column to just the year instead of date format to help merge
@@ -311,8 +311,7 @@ We created a line and dot plot to see any trends between injuries and years. Thi
 
 In 2021 there could be many causes for the injury outbreak. Some could be the abrupt start back to intense play and the shortened off season. The 2020-2021 season started December 22, 2020, so most of this season is played through 2021. The bubble from the 2019-2020 season had many factors on the injury outbreak in 2021. This caused some players who played in it to have a shortened off season and caused the players who didn't play, a long time off of intense activity. The bubble season was very condensed and could have overworked the players. Leading into a short off season did not give them enough time to recover and get ready for the next season. For the players who didn't play this might have been too long of time off, so when play started again the players might have overworked their body that stopped being used to this intense activity.
 
-We see a good increase of injuries in 2017. This could be caused by the increased pace of the game. In the 2017-2018 there were many timeout changes made to the rulebook. The main focus of these changes were increasing the pace of the game. Instead of some 90 second timeouts and some 60 second timeouts, all timeouts will be 75 seconds flat. Through this and other changes to mandatory timeouts and stricter delay of game policies if you go over the time, players saw shorter breaks and more time in the game without a break, especially in the last few minutes of a game which sometimes can be the most intense on your body. 
-
+We see a good increase of injuries in 2017. This could be caused by the increased pace of the game. In the 2017-2018 there were many timeout changes made to the rulebook. The main focus of these changes were increasing the pace of the game. Instead of some 90 second timeouts and some 60 second timeouts, all timeouts will be 75 seconds flat. Through this and other changes to mandatory timeouts and stricter delay of game policies if you go over the time, players saw shorter breaks and more time in the game without a break, especially in the last few minutes of a game which sometimes can be the most intense on your body.
 
 ```{r}
 
@@ -420,4 +419,3 @@ print(injured_sample / overall_sample_size) * 100
  
 
 ```
->>>>>>> 73d7f1be8e9609534572a47427a73588fb6e63ad
