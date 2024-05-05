@@ -420,20 +420,21 @@ bar_sd <- statistic_barplot(sd_df, "Age_Group", "SD", "Age_Group", "Standard Dev
 plot_grid(bar_means, bar_medians, bar_maxs, bar_sd, ncol = 2, nrow = 2, align = "v")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-9-1.png)<!-- --> We created
-these graphs to visualize some statistics of the players’ injury
-duration by age group to see if we can find any trends. Looking at the
-36-40 year age group we see it has the highest mean, lowest median,
-longest injury duration, and highest standard deviation. From this we
-can conclude the data is very spread out, more specifically skewed
-right. This means while on average there may be older players recovering
-quickly from injuries, there is also a significant proportion of players
-who experience longer recovery times. This trend is shown for all age
-groups (mean \> median) which tells us in all age groups there are some
-injuries that are extremely long to recover from. This trend is mostly
-profound in the 36-40 year old age group.
+![](README_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
-## Look at injuries over time 2010 - 2022 (2023 data does not include the fall portion)
+We created these graphs to visualize some statistics of the players’
+injury duration by age group to see if we can find any trends. Looking
+at the 36-40 year age group we see it has the highest mean, lowest
+median, longest injury duration, and highest standard deviation. From
+this we can conclude the data is very spread out, more specifically
+skewed right. This means while on average there may be older players
+recovering quickly from injuries, there is also a significant proportion
+of players who experience longer recovery times. This trend is shown for
+all age groups (mean \> median) which tells us in all age groups there
+are some injuries that are extremely long to recover from. This trend is
+mostly profound in the 36-40 year old age group.
+
+## Look at injuries over time 2010 - 2022
 
 ``` r
 library(ggplot2)
@@ -449,6 +450,8 @@ injuryOverTime <- data.frame(
     sum(changed_injurydata$Date == year)
   })
 )
+# Exclude year 2023
+injuryOverTime <- subset(injuryOverTime, Year != 2023)
 
 # Convert Year column to factor with ordered levels
 injuryOverTime$Year <- factor(injuryOverTime$Year, levels = unique(injuryOverTime$Year))
@@ -458,76 +461,45 @@ ggplot(injuryOverTime, aes(x = Year, y = Injuries, group = 1)) +
   geom_point() +
   geom_line() +  # Add points for each data point
   labs(x = "Year", y = "# of Injuries", title = "Injury Count Over Years") +
-  theme_minimal() +
   scale_x_discrete(labels = as.character(injuryOverTime$Year))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-10-1.png)<!-- --> We created a
-line and dot plot to see any trends between injuries and years. This
-helps us visualize if injury prevention has gotten better, worse, or
-stayed the same. T
+![](README_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
-## may not be needed but here for testing purposes and to safe keep
+We created a line and dot plot to see any trends between injuries and
+years. This helps us visualize if injury prevention has gotten better,
+worse, or stayed the same. We see an upward trend for the most part as
+we go through the years. We also see some spike ups and downs, let’s
+dive into those further individually one at a time.
 
-``` r
-# Filter injury data to only have rows where Relinquished is not NA (someone is injured)
-library(dplyr)
-filtered_injurydata <- filtered_injurydata %>%
-  filter(!is.na(Relinquished))
-# Deletes acquired row
-#filtered_injurydata <- subset(filtered_injurydata, select = -Acquired)
-summary(filtered_injurydata)
-```
+2020 was the year of the pandemic outbreak. This caused the season to be
+suspended and have restrictions on playing. This caused less games which
+means less oppurtunities to get injured. There was an effort to bring
+back nba games with the bubble inviting 22 teams to play basketball
+games through rigorous testing and caution. Keep in mind for later that
+some players and teams did not get involved with this bubble season.
+After this year we see an outbreak of injuries instead of sickness.
 
-    ##       ...1            Date                Team             Acquired        
-    ##  Min.   :14669   Min.   :2010-01-01   Length:12119       Length:12119      
-    ##  1st Qu.:20334   1st Qu.:2014-02-12   Class :character   Class :character  
-    ##  Median :26033   Median :2017-11-10   Mode  :character   Mode  :character  
-    ##  Mean   :26103   Mean   :2017-05-13                                        
-    ##  3rd Qu.:31854   3rd Qu.:2021-02-13                                        
-    ##  Max.   :37633   Max.   :2023-04-09                                        
-    ##  Relinquished          Notes          
-    ##  Length:12119       Length:12119      
-    ##  Class :character   Class :character  
-    ##  Mode  :character   Mode  :character  
-    ##                                       
-    ##                                       
-    ## 
+In 2021 there could be many causes for the injury outbreak. Some could
+be the abrupt start back to intense play and the shortened off season.
+The 2020-2021 season started December 22, 2020, so most of this season
+is played through 2021. The bubble from the 2019-2020 season had many
+factors on the injury outbreak in 2021. This caused some players who
+played in it to have a shortened off season and caused the players who
+didn’t play, a long time off of intense activity. The bubble season was
+very condensed and could have overworked the players. Leading into a
+short off season did not give them enough time to recover and get ready
+for the next season. For the players who didn’t play this might have
+been too long of time off, so when play started again the players might
+have overworked their body that stopped being used to this intense
+activity.
 
-``` r
-# Filter injury data to include only notes that contain "IL,IR,DTD" (injuries)
-filtered_injurydata <- subset(filtered_injurydata, grepl("IL|IR|DTD", Notes))
-filtered_injurydata
-```
-
-    ## # A tibble: 12,114 × 6
-    ##     ...1 Date       Team      Acquired Relinquished        Notes                
-    ##    <dbl> <date>     <chr>     <chr>    <chr>               <chr>                
-    ##  1 14669 2010-01-01 Knicks    <NA>     Jonathan Bender     placed on IL with so…
-    ##  2 14671 2010-01-02 Celtics   <NA>     Kevin Garnett       placed on IL with hy…
-    ##  3 14673 2010-01-02 Nets      <NA>     Sean Williams       placed on IL         
-    ##  4 14675 2010-01-02 Wizards   <NA>     Mike James (Lamont) placed on IL         
-    ##  5 14677 2010-01-04 Blazers   <NA>     Joel Przybilla      placed on IL recover…
-    ##  6 14678 2010-01-04 Clippers  <NA>     Brian Skinner       placed on IL         
-    ##  7 14680 2010-01-04 Heat      <NA>     Jermaine O'Neal     placed on IL with st…
-    ##  8 14683 2010-01-05 76ers     <NA>     Royal Ivey          placed on IL         
-    ##  9 14685 2010-01-05 Knicks    <NA>     Eddy Curry          placed on IL         
-    ## 10 14687 2010-01-05 Mavericks <NA>     Erick Dampier       placed on IL with le…
-    ## # ℹ 12,104 more rows
-
-## Let’s look at the highest injured teams
-
-``` r
-# MIGHT NOT KEEP THIS CODE WHEN PRESENTING UNLESS WE WANT TO LOOK AT SOMETHING FURTHER WITH IT
-team_counts <- table(filtered_injurydata$Team)
-sorted_team_counts <- sort(team_counts, decreasing = TRUE)
-highest5_injuredTeams <- head(sorted_team_counts, 5)
-highest5_injuredTeams
-```
-
-    ## 
-    ##     Spurs   Celtics   Raptors Mavericks      Heat 
-    ##       582       531       529       497       474
-
-The most frequently injured team are Spurs (582), Celtics (530), Raptors
-(529), Mavericks (497), Heat (474).
+We see a good increase of injuries in 2017. This could be caused by the
+increased pace of the game. In the 2017-2018 there were many timeout
+changes made to the rulebook. The main focus of these changes were
+increasing the pace of the game. Instead of some 90 second timeouts and
+some 60 second timeouts, all timeouts will be 75 seconds flat. Through
+this and other changes to mandatory timeouts and stricter delay of game
+policies if you go over the time, players saw shorter breaks and more
+time in the game without a break, especially in the last few minutes of
+a game which sometimes can be the most intense on your body.
