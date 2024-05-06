@@ -8,6 +8,10 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+# Introduction
+
+We chose to look at NBA injury data. The data set we chose was from Kaggle. We mainly wanted to look into injury duration, injuries by position, and injuries by age group. The main goal of this report is to find and take note of interesting trends in NBA injury data.
+
 ## View Data Set
 
 ```{r, message = FALSE}
@@ -23,6 +27,8 @@ head(seasonsStats_data)
 ```
 
 ## Filter every dataset to be all years beyond (inclusive) 2010
+
+Here we want to simplify our data down to the range that we want. This means that we are limiting the data to the years between 2010-2023 inclusively. In hindsight, we should have spent the time to put each data point into their respective seasons and working based off of the NBA season calendar. We initially did this simplification because it was quick and got us close to what we wanted.
 
 ```{r, message=FALSE}
 # Filter injury_data
@@ -42,6 +48,8 @@ summary(filtered_seasonsStatsdata["Year"])
 ```
 
 ## Change old team names to their new team name
+
+We found that in the filtered data there were still teams with names that have since been changed. We wanted to change these team names so they wouldn't cause issues later down the road.
 
 ```{r, message=FALSE}
 all_teams <- unique(filtered_injurydata$Team)
@@ -91,6 +99,11 @@ injury_duration <- merged_data %>%
   group_by(Acquired, Date_end)  %>% 
   filter(Date_gap == min(Date_gap))
 
+# Filtering to ensure no duplicate Date_end for a given Date_begin
+injury_duration <- injury_duration %>% 
+  group_by(Acquired, Date_begin)  %>% 
+  filter(Date_gap == min(Date_gap))
+
 # Reordering collumns of data
 injury_duration <- injury_duration[, c("Acquired", "Date_begin", "Date_end", "Date_gap", "Team_begin", "Team_end", "Notes_begin", "Notes_end")]
 
@@ -123,7 +136,8 @@ ggplot(filtered_injury_duration, aes(x = Date_gap)) +
   theme_minimal()
 ```
 
-Based off of this data the average duration of an injury will be 12.24041 days when you exclude the extereme injuries that lasted more than a year. We can see that the data is massively skewed towards shorter injuries. The reason for this being that many of the data points aren't injuries at all and instead are illness. Some instants of players being placed on IL don't have any detail of why. This makes it hard for us to filter out only injuries.
+Based off of this data the average duration of an injury will be 11 days when you exclude the extereme injuries that lasted more than a year. We can see that the data is massively skewed towards shorter injuries. The reason for this being that many of the data points aren't injuries at all and instead are illness. Some instants of players being placed on IL don't have any detail of why. This makes it hard for us to filter out only injuries.\
+One major issue with this data is it does not separate rest days and illness from serious injuries. We could filter out based on a certain duration of injury and label them as "serious". Labeling our data this way would give us a subset of data with supposedly "serious" injuries.
 
 ## Injury per Player data setup
 
@@ -419,3 +433,5 @@ print(injured_sample / overall_sample_size) * 100
  
 
 ```
+
+# Conclusions
