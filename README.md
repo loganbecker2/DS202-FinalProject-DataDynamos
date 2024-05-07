@@ -2,6 +2,13 @@ DS 202 Final Project Data Dynamos
 ================
 Logan Becker, Gavin Herum, Jackson Weaver
 
+# Introduction
+
+We chose to look at NBA injury data. The data set we chose was from
+Kaggle. We mainly wanted to look into injury duration, injuries by
+position, and injuries by age group. The main goal of this report is to
+find and take note of interesting trends in NBA injury data.
+
 ## View Data Set
 
 ``` r
@@ -60,6 +67,13 @@ head(seasonsStats_data)
     ## #   DRB <dbl>, TRB <dbl>, AST <dbl>, STL <dbl>, BLK <dbl>, TOV <dbl>, …
 
 ## Filter every dataset to be all years beyond (inclusive) 2010
+
+Here we want to simplify our data down to the range that we want. This
+means that we are limiting the data to the years between 2010-2023
+inclusively. In hindsight, we should have spent the time to put each
+data point into their respective seasons and working based off of the
+NBA season calendar. We initially did this simplification because it was
+quick and got us close to what we wanted.
 
 ``` r
 # Filter injury_data
@@ -122,6 +136,10 @@ summary(filtered_seasonsStatsdata["Year"])
     ##  Max.   :2017
 
 ## Change old team names to their new team name
+
+We found that in the filtered data there were still teams with names
+that have since been changed. We wanted to change these team names so
+they wouldn’t cause issues later down the road.
 
 ``` r
 all_teams <- unique(filtered_injurydata$Team)
@@ -193,6 +211,11 @@ injury_duration <- merged_data %>%
   group_by(Acquired, Date_end)  %>% 
   filter(Date_gap == min(Date_gap))
 
+# Filtering to ensure no duplicate Date_end for a given Date_begin
+injury_duration <- injury_duration %>% 
+  group_by(Acquired, Date_begin)  %>% 
+  filter(Date_gap == min(Date_gap))
+
 # Reordering collumns of data
 injury_duration <- injury_duration[, c("Acquired", "Date_begin", "Date_end", "Date_gap", "Team_begin", "Team_end", "Notes_begin", "Notes_end")]
 
@@ -203,7 +226,7 @@ Injury_duration_average <- mean(injury_duration$Date_gap)
 Injury_duration_average
 ```
 
-    ## [1] 13.84776
+    ## [1] 11.60562
 
 ``` r
 filtered_injury_duration <- subset(injury_duration, Date_gap <= 365 )
@@ -211,7 +234,7 @@ Injury_duration_average <- mean(filtered_injury_duration$Date_gap)
 Injury_duration_average
 ```
 
-    ## [1] 12.24041
+    ## [1] 11.28747
 
 ``` r
 # This graph is messed up because Patty Mills had an injury that lasted for 2976 days, which is not accurate to reality
@@ -239,13 +262,17 @@ ggplot(filtered_injury_duration, aes(x = Date_gap)) +
 
 ![](README_files/figure-gfm/unnamed-chunk-4-2.png)<!-- -->
 
-Based off of this data the average duration of an injury will be
-12.24041 days when you exclude the extereme injuries that lasted more
-than a year. We can see that the data is massively skewed towards
-shorter injuries. The reason for this being that many of the data points
-aren’t injuries at all and instead are illness. Some instants of players
-being placed on IL don’t have any detail of why. This makes it hard for
-us to filter out only injuries.
+Based off of this data the average duration of an injury will be 11 days
+when you exclude the extereme injuries that lasted more than a year. We
+can see that the data is massively skewed towards shorter injuries. The
+reason for this being that many of the data points aren’t injuries at
+all and instead are illness. Some instants of players being placed on IL
+don’t have any detail of why. This makes it hard for us to filter out
+only injuries.  
+One major issue with this data is it does not separate rest days and
+illness from serious injuries. We could filter out based on a certain
+duration of injury and label them as “serious”. Labeling our data this
+way would give us a subset of data with supposedly “serious” injuries.
 
 ## Injury per Player data setup
 
@@ -547,7 +574,11 @@ ggplot(counting_number_injuries, aes(x = n)) +
   labs(title = "Frequency of Injuries", x = "number of injuries", y = "Frequency")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- --> This shows
+that the number of injuries is right-skewed, so little to none have had
+75 injuries or up. The number of injuries at the beginning is very high
+considering the fact that the NBA is a very competitive environment. All
+that competitivity leads to more physical interactions between players.
 
 ``` r
 #counts the number of injuries 
@@ -572,7 +603,11 @@ ggplot(injuries_by_position, aes(x = position, y = number_of_injuries)) +
   labs(x = "Position Injuries", y = "Frequency", title = "Frequency of Injuries by Position")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-12-1.png)<!-- --> This shows
+that the forward and guard get the most amount of injuries. The type of
+injury is uncertain considering we haven’t differentiated between IL
+(can’t play due to injury, but takes up bench spot) and IR (can’t play
+due to injury, but doesn’t take up a bench spot).
 
 ``` r
 ##IL means they won't take up a bench spot
@@ -600,7 +635,7 @@ ggplot(IR_position_injuries, aes(x = position, y = IR_injuries)) +
   labs(x = "Position", y = "Frequency", title = "IR position injuries")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-11-3.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 ``` r
 ##how many IL happen per position, but by same position how many IR happens?
@@ -613,7 +648,7 @@ ggplot(IL_position_injuries, aes(x = position, y = IL_injuries)) +
   labs(x = "Position Injuries", y = "Frequency", title = "IL Position Injuries")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-11-4.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-13-2.png)<!-- -->
 
 ``` r
 #merging IR and IL injuries in order to compare in bar graph
@@ -629,7 +664,7 @@ ggplot(merging_IR_IL, aes(x = position, y = IL_injuries / IR_injuries)) +
   labs(x = "Position", y = "IL Injuries per IR Injuries", title = "IL to IR Injury constant Based on Position")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-11-5.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-13-3.png)<!-- -->
 
 ``` r
 library(tidyr)
@@ -661,4 +696,44 @@ print(injured_sample / overall_sample_size) * 100
 #above shows we got a 46.5% chance a player will get injured at least once, while NLH says the amount injured at least once is a 46.8% chance
 ```
 
-> > > > > > > 73d7f1be8e9609534572a47427a73588fb6e63ad
+The first graph shows how how many IR position injuries there are
+including all years from 1947 to 2018. The second graph shows how many
+IL position injuries including 2010. The third graph shows how much more
+likely you are to get an IL injury, calculated using IL injuries per IR
+injuries. The fourth number shows the likelihood of one injury
+occurring, in this case 46.5%, NLH got a number of 46.8%.
+
+``` r
+combining_data_any_year <- injury_data %>% select(Acquired, Relinquished, Notes) %>% mutate(Acquired = if_else(is.na(Relinquished), Acquired, Relinquished)) %>% mutate(name = Acquired) 
+
+merged_playerData_combiningData_any_player <- merge(player_data, combining_data_any_year, by = "name")
+
+
+#below gives IL injuries for any year
+
+IL_position_injuries_any_year <- merged_playerData_combiningData_any_player %>% filter(str_starts(Notes, IL)) %>% select(position, Notes) %>% count(position) %>% rename(IL_injuries = n)
+
+#below gives IR's for any amount of years
+
+IR_position_injuries_any_year <- merged_playerData_combiningData_any_player %>% filter(str_starts(Notes, IR)) %>% select(position, Notes) %>% count(position) %>% rename(IR_injuries = n)
+
+#for any year
+IR_position_injuries_any <- merged_playerData_combiningData %>% filter(str_starts(Notes, IR)) %>% select(position, Notes) %>% count(position) %>% rename(IR_injuries = n)
+
+
+IR_position_injuries_any_year <- merged_playerData_combiningData_any_player %>% filter(str_starts(Notes, IR)) %>% select(position, Notes) %>% count(position) %>% rename(IR_injuries = n)
+
+#how many IR's for any year?
+ggplot(IR_position_injuries_any_year, aes(x = position, y = IR_injuries)) +
+  geom_bar(stat = "identity") +
+  labs(x = "Position", y = "Frequency", title = "IR position injuries for any year")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
+This shows that the IR position injuries for any year still has forward
+and guard as the most injured player positions. This could mean a tiny
+IL injury weakens that individuals body, then it gets hurt again and the
+injury becomes more severe than last time.
+
+# Conclusions
