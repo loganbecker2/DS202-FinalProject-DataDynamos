@@ -9,6 +9,8 @@ Kaggle. We mainly wanted to look into injury duration, injuries by
 position, and injuries by age group. The main goal of this report is to
 find and take note of interesting trends in NBA injury data.
 
+# Data sets, cleaning, and filtering
+
 ## View Data Set
 
 ``` r
@@ -65,6 +67,19 @@ head(seasonsStats_data)
     ## #   `FG%` <dbl>, `3P` <dbl>, `3PA` <dbl>, `3P%` <dbl>, `2P` <dbl>, `2PA` <dbl>,
     ## #   `2P%` <dbl>, `eFG%` <dbl>, FT <dbl>, FTA <dbl>, `FT%` <dbl>, ORB <dbl>,
     ## #   DRB <dbl>, TRB <dbl>, AST <dbl>, STL <dbl>, BLK <dbl>, TOV <dbl>, …
+
+## Data Structure
+
+For the NBA injury stats we have 1 csv file with 6 columns
+(Index,Date,Team,Acquired,Relinquished,Notes). This csv file includes
+37,667 rows. For the NBA Player stats we have 3 csv files. Two of the
+csv files are very similar and we will not need the Player csv, so we do
+not import that into our analysis nor do we use it. First csv
+Seasons_Stats has 53 columns which we will only use 5 of the columns
+(Index, Year, Player, Position, Age). It contains 24,691 rows. The
+second csv file has 8 columns but we will only use 4 of the columns
+(name, year_start, year_end, position). This dataset included 4,550
+rows.
 
 ## Filter every dataset to be all years beyond (inclusive) 2010
 
@@ -174,6 +189,46 @@ all_teams
     ## [16] "Grizzlies"    "Magic"        "Spurs"        "Bucks"        "Pistons"     
     ## [21] "Kings"        "Lakers"       "Hawks"        "Rockets"      "Thunder"     
     ## [26] "Warriors"     "Hornets"      "Suns"         "Bulls"        "Pelicans"
+
+## Data Variables
+
+### injury_data.csv
+
+##### Index: Index
+
+##### Date: The date the action occurred on
+
+##### Team: Team the action occurred on
+
+##### Acquired: Player name the team acquired (recovering player or replacement player)
+
+##### Relinquished: Player name the team relinquishes (injury or other leave)
+
+##### Notes: Short note on the action that occurred
+
+### Seasons_Stats.csv
+
+##### Index: Index
+
+##### Year: year of the season
+
+##### Player: First and last name of the player
+
+##### Pos: Position of the player
+
+##### Age: Age of the player
+
+### player_data.csv
+
+##### name: First and last name of the player
+
+##### year_start: Year the player started his career
+
+##### year_end: Year the player ended his career
+
+##### position: Position of the player
+
+# Analysis
 
 ## Lets find out the average duration of an injury
 
@@ -385,7 +440,11 @@ players getting injured then there is players in the league. So this
 means there are players getting injured multiple times or having
 reoccurring injuries. We also can see from the graph that the most
 injuries are occurring when players are young and/or just entering the
-NBA. We also see older players getting injured highly as expected.
+NBA. This could be due to their young bodies still developing, they have
+not quite got to male physical bodily peak. This could also be due to
+the heavy workload in the NBA that they are not used to. We also see
+older players getting injured highly as expected. As you get older the
+more prone to injury you are as your body slows down.
 
 ## Statistics for injury duration by age group
 
@@ -478,9 +537,9 @@ this we can conclude the data is very spread out, more specifically
 skewed right. This means while on average there may be older players
 recovering quickly from injuries, there is also a significant proportion
 of players who experience longer recovery times. This trend is shown for
-all age groups (mean \> median) which tells us in all age groups there
-are some injuries that are extremely long to recover from. This trend is
-mostly profound in the 36-40 year old age group.
+all age groups which tells us in all age groups there are some injuries
+that are extremely long to recover from. This trend is mostly profound
+in the 36-40 year old age group.
 
 ## Look at injuries over time 2010 - 2022
 
