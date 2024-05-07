@@ -12,6 +12,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 We chose to look at NBA injury data. The data set we chose was from Kaggle. We mainly wanted to look into injury duration, injuries by position, and injuries by age group. The main goal of this report is to find and take note of interesting trends in NBA injury data.
 
+We believe that finding interesting trends in NBA injury data can be beneficial to players, coaches, teams, and spectators alike. As spectators of the NBA we are interested in injury data because injuries can completely change the course of a season. With the sports gambling industry growing interest in the NBA, predicting injuries and the time out of play that comes with them is becoming more important to more people.
+
 # Data sets, cleaning, and filtering
 
 ## View Data Set
@@ -27,7 +29,9 @@ head(injury_data)
 head(player_data)
 head(seasonsStats_data)
 ```
+
 ## Data Structure
+
 For the NBA injury stats we have 1 csv file with 6 columns (Index,Date,Team,Acquired,Relinquished,Notes). This csv file includes 37,667 rows. For the NBA Player stats we have 3 csv files. Two of the csv files are very similar and we will not need the Player csv, so we do not import that into our analysis nor do we use it. First csv Seasons_Stats has 53 columns which we will only use 5 of the columns (Index, Year, Player, Position, Age). It contains 24,691 rows. The second csv file has 8 columns but we will only use 4 of the columns (name, year_start, year_end, position). This dataset included 4,550 rows.
 
 ## Filter every dataset to be all years beyond (inclusive) 2010
@@ -74,24 +78,39 @@ all_teams
 ## Data Variables
 
 ### injury_data.csv
+
 ##### Index: Index
+
 ##### Date: The date the action occurred on
+
 ##### Team: Team the action occurred on
+
 ##### Acquired: Player name the team acquired (recovering player or replacement player)
+
 ##### Relinquished: Player name the team relinquishes (injury or other leave)
+
 ##### Notes: Short note on the action that occurred
 
 ### Seasons_Stats.csv
+
 ##### Index: Index
+
 ##### Year: year of the season
+
 ##### Player: First and last name of the player
+
 ##### Pos: Position of the player
+
 ##### Age: Age of the player
 
 ### player_data.csv
+
 ##### name: First and last name of the player
+
 ##### year_start: Year the player started his career
+
 ##### year_end: Year the player ended his career
+
 ##### position: Position of the player
 
 # Analysis
@@ -99,6 +118,8 @@ all_teams
 ## Lets find out the average duration of an injury
 
 The average duration of an injury in the NBA is important to know because it helps make informed decisions on recovery and what to expect for a player. While the average duration of an injury cannot inform any specific recovery. It can help us get an understanding of the expected results of an injury. Knowing how long an injury could last informs teams, players, and spectators of a sport.
+
+This is an important starting point. Future inquires can use the data on injury duration to more easily analyze data with less upfront work. While knowing the average duration of an injury is important, creating this table for future inquires is even more important. We expect that this inquiry into the average duration of injuries will help us find issues within the data, and create future questions based on the results.
 
 ```{r, message = FALSE}
 
@@ -169,6 +190,7 @@ Based off of this data the average duration of an injury will be 11 days when yo
 One major issue with this data is it does not separate rest days and illness from serious injuries. We could filter out based on a certain duration of injury and label them as "serious". Labeling our data this way would give us a subset of data with supposedly "serious" injuries.
 
 ## Injury per Player data setup
+
 ```{r, message=FALSE}
 library(dplyr)
 library(lubridate)
@@ -185,7 +207,9 @@ ageVSinjury <- inner_join(changed_injurydata, filtered_seasonsStatsdata,
 # make sure there are no repeats (distinct IDs)
 ageVSinjury <- distinct(ageVSinjury,...1.x, .keep_all = TRUE)
 ```
+
 ## Injuries per Player (2010 - 2017)
+
 ```{r, message=FALSE}
 # First look at age range
 age_range <- summary(filtered_seasonsStatsdata$Age)
@@ -227,7 +251,9 @@ AgeRatios <- function(list1,list2,PRINT) {
 AgeRatios(ageInjury_list, agePlayer_list, TRUE) # PRINTS AGE RATIOS
 listAgeRatios <- AgeRatios(ageInjury_list, agePlayer_list, FALSE) # SAVES AGE RATIOS AS LIST
 ```
+
 ## Graph for Injuries per player
+
 ```{r, message=FALSE}
 library(ggplot2)
 # Convert ratios to data frame
@@ -241,9 +267,10 @@ ggplot(dfAgeRatio, aes(x = Age_Group, y = Ratio, fill = Age_Group)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-This graph was created to visualize the difference in injuries per age group. The injuries per player above 1 mean there is more occurrences of players getting injured then there is players in the league. So this means there are players getting injured multiple times or having reoccurring injuries. We also can see from the graph that the most injuries are occurring when players are young and/or just entering the NBA. This could be due to their young bodies still developing, they have not quite got to male physical bodily peak. This could also be due to the heavy workload in the NBA that they are not used to. We also see older players getting injured highly as expected. As you get older the more prone to injury you are as your body slows down. 
+This graph was created to visualize the difference in injuries per age group. The injuries per player above 1 mean there is more occurrences of players getting injured then there is players in the league. So this means there are players getting injured multiple times or having reoccurring injuries. We also can see from the graph that the most injuries are occurring when players are young and/or just entering the NBA. This could be due to their young bodies still developing, they have not quite got to male physical bodily peak. This could also be due to the heavy workload in the NBA that they are not used to. We also see older players getting injured highly as expected. As you get older the more prone to injury you are as your body slows down.
 
 ## Statistics for injury duration by age group
+
 ```{r, message=FALSE}
 library(lubridate)
 # Change date column to just year
@@ -273,7 +300,9 @@ maxDurations <- statisticCalculations(ageInjuryDuration_list, max)
 medianDurations <- statisticCalculations(ageInjuryDuration_list, median)
 sdDurations <- statisticCalculations(ageInjuryDuration_list, sd)
 ```
+
 ## Graph Injury duration by age group
+
 ```{r, message=FALSE}
 #install.packages('cowplot')
 library(cowplot)
@@ -310,6 +339,7 @@ plot_grid(bar_means, bar_medians, bar_maxs, bar_sd, ncol = 2, nrow = 2, align = 
 We created these graphs to visualize some statistics of the players' injury duration by age group to see if we can find any trends. Looking at the 36-40 year age group we see it has the highest mean, lowest median, longest injury duration, and highest standard deviation. From this we can conclude the data is very spread out, more specifically skewed right. This means while on average there may be older players recovering quickly from injuries, there is also a significant proportion of players who experience longer recovery times. This trend is shown for all age groups which tells us in all age groups there are some injuries that are extremely long to recover from. This trend is mostly profound in the 36-40 year old age group.
 
 ## Look at injuries over time 2010 - 2022
+
 ```{r,message=FALSE}
 library(ggplot2)
 #change injurydata date column to just the year instead of date format to help merge
@@ -368,8 +398,8 @@ ggplot(counting_number_injuries, aes(x = n)) +
   geom_histogram(binwidth = 1,) +
   labs(title = "Frequency of Injuries", x = "number of injuries", y = "Frequency")
 ```
-This shows that the number of injuries is right-skewed, so little to none have had 75 injuries or up. The number of injuries at the beginning is very high considering the fact that the NBA is a very competitive environment. All that competitivity leads to more physical interactions between players. 
 
+This shows that the number of injuries is right-skewed, so little to none have had 75 injuries or up. The number of injuries at the beginning is very high considering the fact that the NBA is a very competitive environment. All that competitivity leads to more physical interactions between players.
 
 ```{r}
 #counts the number of injuries 
@@ -393,7 +423,8 @@ ggplot(injuries_by_position, aes(x = position, y = number_of_injuries)) +
   geom_bar(stat = "identity") +
   labs(x = "Position Injuries", y = "Frequency", title = "Frequency of Injuries by Position")
 ```
-This shows that the forward and guard get the most amount of injuries. The type of injury is uncertain considering we haven't differentiated between IL (can't play due to injury, but takes up bench spot) and IR (can't play due to injury, but doesn't take up a bench spot). 
+
+This shows that the forward and guard get the most amount of injuries. The type of injury is uncertain considering we haven't differentiated between IL (can't play due to injury, but takes up bench spot) and IR (can't play due to injury, but doesn't take up a bench spot).
 
 ```{r}
 ##IL means they won't take up a bench spot
@@ -459,10 +490,8 @@ print(injured_sample / overall_sample_size) * 100
  
 
 ```
-The first graph shows how how many IR position injuries there are including all years from 1947 to 2018.
-The second graph shows how many IL position injuries including 2010.
-The third graph shows how much more likely you are to get an IL injury, calculated using IL injuries per IR injuries.
-The fourth number shows the likelihood of one injury occurring, in this case 46.5%, NLH got a number of 46.8%.
+
+The first graph shows how how many IR position injuries there are including all years from 1947 to 2018. The second graph shows how many IL position injuries including 2010. The third graph shows how much more likely you are to get an IL injury, calculated using IL injuries per IR injuries. The fourth number shows the likelihood of one injury occurring, in this case 46.5%, NLH got a number of 46.8%.
 
 ```{r}
 combining_data_any_year <- injury_data %>% select(Acquired, Relinquished, Notes) %>% mutate(Acquired = if_else(is.na(Relinquished), Acquired, Relinquished)) %>% mutate(name = Acquired) 
@@ -491,18 +520,25 @@ ggplot(IR_position_injuries_any_year, aes(x = position, y = IR_injuries)) +
 
 ```
 
-
-
 This shows that the IR position injuries for any year still has forward and guard as the most injured player positions. This could mean a tiny IL injury weakens that individuals body, then it gets hurt again and the injury becomes more severe than last time.
 
 # Conclusions
 
 Considering the NLM article is a recognized and peer-reviewed article, in regards to the probability of an injury from 1947 to 2018 is accurate, but off by NLM's percentage by 0.3%. The NLM's link below.
 
-https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6107769/#:~:text=For%20professional%20athletes%2C%20injuries%20can,negative%20consequences%20for%20many%20stakeholders. 
+<https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6107769/#>:\~:text=For%20professional%20athletes%2C%20injuries%20can,negative%20consequences%20for%20many%20stakeholders.
 
-A player tends to get hurt a couple times, but after about twenty five sustained injuries, they tend to not get injured as much. 
+A player tends to get hurt a couple times, but after about twenty five sustained injuries, they tend to not get injured as much. This may because they experienced a career ending injury, or they retired after a serious injury for self-preservation.
 
 IR injuries don't happen as often as IL injuries. The number of IL injuries is in the thousands per position, but for IR injuries it tend to be in the hundreds. This absence of IR injuries could be due to the classification of IR injuries being changed after the year 2006.
 
 IL injuries are more than 15 times likely to happen to you compard to IR injuries.
+
+We have a list of further questions we wanted to get to:
+
+1.  What type of injuries are most common in any given position?
+2.  Is there any relation to amount of rest days and player value?
+3.  How likely are players to re-injure a previous injury?
+4.  When do injuries most commonly happen during any given season?
+
+We chose these questions because the results of these inquiries would be beneficial to players, coaches, teams, and spectators alike. Ultimately our goal with analyzing this data set was to find interesting trends in NBA injury data, and we believe that these four questions would bring us closer to achieving our goals.
