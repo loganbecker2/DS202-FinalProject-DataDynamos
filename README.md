@@ -737,3 +737,20 @@ IL injury weakens that individuals body, then it gets hurt again and the
 injury becomes more severe than last time.
 
 # Conclusions
+
+Considering the NLH article is a recognized and peer-reviewed article,
+in regards to the probability of an injury from 1947 to 2018 is
+accurate, but off by NLH’s percentage by 0.3%. The NLH’s link below.
+
+<https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6107769/#>:~:text=For%20professional%20athletes%2C%20injuries%20can,negative%20consequences%20for%20many%20stakeholders.
+
+A player tends to get hurt a couple times, but after about twenty five
+sustained injuries, they tend to not get injured as much.
+
+IR injuries don’t happen as often as IL injuries. The number of IL
+injuries is in the thousands per position, but for IR injuries it tend
+to be in the hundreds. This absence of IR injuries could be due to the
+classification of IR injuries being changed after the year 2006.
+
+IL injuries are more than 15 times likely to happen to you compard to IR
+injuries.
