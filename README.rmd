@@ -479,7 +479,7 @@ This shows that the IR position injuries for any year still has forward and guar
 
 # Conclusions
 
-Considering the NLH article is a recognized and peer-reviewed article, in regards to the probability of an injury from 1947 to 2018 is accurate, but off by NLH's percentage by 0.3%. The NLH's link below.
+Considering the NLM article is a recognized and peer-reviewed article, in regards to the probability of an injury from 1947 to 2018 is accurate, but off by NLM's percentage by 0.3%. The NLM's link below.
 
 https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6107769/#:~:text=For%20professional%20athletes%2C%20injuries%20can,negative%20consequences%20for%20many%20stakeholders. 
 
