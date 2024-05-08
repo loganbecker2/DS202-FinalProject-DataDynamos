@@ -165,6 +165,7 @@ that have since been changed. We wanted to change these team names so
 they wouldn’t cause issues later down the road.
 
 ``` r
+# Check how many teams there are
 all_teams <- unique(filtered_injurydata$Team)
 all_teams
 ```

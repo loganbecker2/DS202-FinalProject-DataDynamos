@@ -60,6 +60,7 @@ summary(filtered_seasonsStatsdata["Year"])
 We found that in the filtered data there were still teams with names that have since been changed. We wanted to change these team names so they wouldn't cause issues later down the road.
 
 ```{r, message=FALSE}
+# Check how many teams there are
 all_teams <- unique(filtered_injurydata$Team)
 all_teams
 # We see there is 32 teams here, there should only be 30 nba teams. Bullets and Bobcats are old names, let's change those to be correct
