@@ -9,6 +9,14 @@ Kaggle. We mainly wanted to look into injury duration, injuries by
 position, and injuries by age group. The main goal of this report is to
 find and take note of interesting trends in NBA injury data.
 
+We believe that finding interesting trends in NBA injury data can be
+beneficial to players, coaches, teams, and spectators alike. As
+spectators of the NBA we are interested in injury data because injuries
+can completely change the course of a season. With the sports gambling
+industry growing interest in the NBA, predicting injuries and the time
+out of play that comes with them is becoming more important to more
+people.
+
 # Data sets, cleaning, and filtering
 
 ## View Data Set
@@ -238,6 +246,14 @@ for a player. While the average duration of an injury cannot inform any
 specific recovery. It can help us get an understanding of the expected
 results of an injury. Knowing how long an injury could last informs
 teams, players, and spectators of a sport.
+
+This is an important starting point. Future inquires can use the data on
+injury duration to more easily analyze data with less upfront work.
+While knowing the average duration of an injury is important, creating
+this table for future inquires is even more important. We expect that
+this inquiry into the average duration of injuries will help us find
+issues within the data, and create future questions based on the
+results.
 
 ``` r
 library(magrittr)
@@ -633,11 +649,13 @@ ggplot(counting_number_injuries, aes(x = n)) +
   labs(title = "Frequency of Injuries", x = "number of injuries", y = "Frequency")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- --> This shows
-that the number of injuries is right-skewed, so little to none have had
-75 injuries or up. The number of injuries at the beginning is very high
-considering the fact that the NBA is a very competitive environment. All
-that competitivity leads to more physical interactions between players.
+![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+This shows that the number of injuries is right-skewed, so little to
+none have had 75 injuries or up. The number of injuries at the beginning
+is very high considering the fact that the NBA is a very competitive
+environment. All that competitivity leads to more physical interactions
+between players.
 
 ``` r
 #counts the number of injuries 
@@ -662,11 +680,12 @@ ggplot(injuries_by_position, aes(x = position, y = number_of_injuries)) +
   labs(x = "Position Injuries", y = "Frequency", title = "Frequency of Injuries by Position")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-12-1.png)<!-- --> This shows
-that the forward and guard get the most amount of injuries. The type of
-injury is uncertain considering we haven’t differentiated between IL
-(can’t play due to injury, but takes up bench spot) and IR (can’t play
-due to injury, but doesn’t take up a bench spot).
+![](README_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+This shows that the forward and guard get the most amount of injuries.
+The type of injury is uncertain considering we haven’t differentiated
+between IL (can’t play due to injury, but takes up bench spot) and IR
+(can’t play due to injury, but doesn’t take up a bench spot).
 
 ``` r
 ##IL means they won't take up a bench spot
@@ -804,7 +823,9 @@ accurate, but off by NLM’s percentage by 0.3%. The NLM’s link below.
 <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6107769/#>:~:text=For%20professional%20athletes%2C%20injuries%20can,negative%20consequences%20for%20many%20stakeholders.
 
 A player tends to get hurt a couple times, but after about twenty five
-sustained injuries, they tend to not get injured as much.
+sustained injuries, they tend to not get injured as much. This may
+because they experienced a career ending injury, or they retired after a
+serious injury for self-preservation.
 
 IR injuries don’t happen as often as IL injuries. The number of IL
 injuries is in the thousands per position, but for IR injuries it tend
@@ -813,3 +834,16 @@ classification of IR injuries being changed after the year 2006.
 
 IL injuries are more than 15 times likely to happen to you compard to IR
 injuries.
+
+We have a list of further questions we wanted to get to:
+
+1.  What type of injuries are most common in any given position?
+2.  Is there any relation to amount of rest days and player value?
+3.  How likely are players to re-injure a previous injury?
+4.  When do injuries most commonly happen during any given season?
+
+We chose these questions because the results of these inquiries would be
+beneficial to players, coaches, teams, and spectators alike. Ultimately
+our goal with analyzing this data set was to find interesting trends in
+NBA injury data, and we believe that these four questions would bring us
+closer to achieving our goals.
